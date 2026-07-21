@@ -1,0 +1,334 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+#app{display:flex;flex-direction:column;height:660px;border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);overflow:hidden;background:var(--color-background-primary);font-family:var(--font-sans,'system-ui',sans-serif);font-size:14px;color:var(--color-text-primary)}
+#topbar{display:flex;align-items:center;gap:10px;padding:10px 14px;background:#1B2F5E;flex-shrink:0}
+#logo{font-size:16px;font-weight:500;color:#fff;white-space:nowrap}
+#logo span{color:#E8920A}
+#sb{flex:1;display:flex;align-items:center;gap:7px;background:rgba(255,255,255,.12);border:0.5px solid rgba(255,255,255,.2);border-radius:8px;padding:6px 10px}
+#sb input{border:none;background:transparent;outline:none;color:#fff;font-size:13px;width:100%}
+#sb input::placeholder{color:rgba(255,255,255,.5)}
+#filterbar{display:flex;gap:6px;padding:8px 12px;overflow-x:auto;flex-shrink:0;border-bottom:0.5px solid var(--color-border-tertiary);background:var(--color-background-primary)}
+#filterbar::-webkit-scrollbar{display:none}
+.chip{padding:4px 11px;border-radius:20px;font-size:12px;font-weight:500;cursor:pointer;white-space:nowrap;border:0.5px solid var(--color-border-tertiary);background:var(--color-background-primary);color:var(--color-text-secondary);transition:all .12s;flex-shrink:0}
+.chip.on{color:#fff;border-color:transparent}
+#main{display:flex;flex:1;overflow:hidden;min-height:0}
+#mapwrap{flex:1;position:relative;overflow:hidden;background:#e8f0e0}
+canvas#mc{display:block;cursor:crosshair}
+#mapinfo{position:absolute;bottom:8px;left:8px;background:rgba(255,255,255,.88);border-radius:6px;padding:4px 8px;font-size:10px;color:#555;pointer-events:none}
+#sidebar{width:295px;flex-shrink:0;display:flex;flex-direction:column;border-left:0.5px solid var(--color-border-tertiary);overflow:hidden}
+#sh{padding:8px 12px;font-size:12px;color:var(--color-text-secondary);background:var(--color-background-secondary);border-bottom:0.5px solid var(--color-border-tertiary);flex-shrink:0}
+#sh strong{color:var(--color-text-primary);font-weight:500}
+#list{overflow-y:auto;flex:1}
+#list::-webkit-scrollbar{width:4px}
+#list::-webkit-scrollbar-thumb{background:var(--color-border-secondary);border-radius:4px}
+.ac{padding:10px 12px;border-bottom:0.5px solid var(--color-border-tertiary);cursor:pointer;transition:background .1s}
+.ac:hover,.ac.sel{background:var(--color-background-secondary)}
+.at{display:flex;align-items:flex-start;justify-content:space-between;gap:6px;margin-bottom:3px}
+.an{font-size:13px;font-weight:500;color:var(--color-text-primary);line-height:1.3}
+.ab{font-size:10px;font-weight:500;padding:2px 7px;border-radius:10px;white-space:nowrap;color:#fff}
+.am{font-size:11px;color:var(--color-text-secondary);display:flex;gap:5px;align-items:center}
+.sg{color:#BA7517}
+#profile{display:none;flex-direction:column;height:100%;overflow-y:auto;background:var(--color-background-primary)}
+#profile.vis{display:flex}
+#pb{display:flex;align-items:center;gap:6px;padding:10px 12px;border-bottom:0.5px solid var(--color-border-tertiary);cursor:pointer;font-size:12px;color:var(--color-text-secondary);flex-shrink:0}
+#pb:hover{color:var(--color-text-primary)}
+#pcov{height:88px;padding:10px 12px;display:flex;align-items:flex-end;flex-shrink:0}
+#pbody{padding:12px;flex:1}
+#pname{font-size:15px;font-weight:500;margin-bottom:2px}
+#prat{font-size:12px;color:var(--color-text-secondary);margin-bottom:10px;display:flex;gap:4px;align-items:center}
+.ir{display:flex;align-items:flex-start;gap:8px;margin-bottom:7px;font-size:12px;color:var(--color-text-secondary)}
+.ii{font-size:14px;flex-shrink:0;width:18px;text-align:center}
+.iv{color:var(--color-text-primary)}
+#pdiv{height:0.5px;background:var(--color-border-tertiary);margin:12px 0}
+#prt{font-size:13px;font-weight:500;margin-bottom:10px}
+.rc{padding:10px;border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);margin-bottom:8px}
+.rh{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px}
+.ru{font-size:11px;font-weight:500}
+.rd{font-size:10px;color:var(--color-text-tertiary)}
+.rt{font-size:11px;color:var(--color-text-secondary);line-height:1.5;font-style:italic}
+#cbtn{margin:10px 12px;padding:10px;border-radius:var(--border-radius-md);background:#185FA5;color:#fff;border:none;font-size:13px;font-weight:500;cursor:pointer;width:calc(100% - 24px)}
+#cbtn:hover{background:#1B2F5E}
+#pver{font-size:10px;color:var(--color-text-tertiary);text-align:center;padding:0 12px 12px;line-height:1.4}
+</style>
+
+<div id="app">
+<div id="topbar">
+  <div id="logo">Sport<span>Match</span></div>
+  <div id="sb">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.55)" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+    <input id="qi" placeholder="Sport, comune, età...">
+  </div>
+</div>
+<div id="filterbar">
+  <div class="chip on" data-s="tutti">Tutti (24)</div>
+  <div class="chip" data-s="calcio">Calcio (6)</div>
+  <div class="chip" data-s="nuoto">Nuoto (5)</div>
+  <div class="chip" data-s="pallavolo">Pallavolo (5)</div>
+  <div class="chip" data-s="arti">Arti marziali (4)</div>
+  <div class="chip" data-s="basket">Basket (2)</div>
+  <div class="chip" data-s="tennis">Tennis (1)</div>
+  <div class="chip" data-s="atletica">Atletica (1)</div>
+</div>
+<div id="main">
+  <div id="mapwrap">
+    <canvas id="mc"></canvas>
+    <div id="mapinfo">Bassano del Grappa · Cittadella · 15 km raggio</div>
+  </div>
+  <div id="sidebar">
+    <div id="sh"><strong id="cnt">24 società</strong> · per distanza</div>
+    <div id="list"></div>
+    <div id="profile">
+      <div id="pb">&#8592; Torna ai risultati</div>
+      <div id="pcov"></div>
+      <div id="pbody">
+        <div id="pname"></div>
+        <div id="prat"></div>
+        <div id="pinfos"></div>
+        <div id="pdiv"></div>
+        <div id="prt">Recensioni dei genitori</div>
+        <div id="prevs"></div>
+      </div>
+      <button id="cbtn">Contatta la società</button>
+      <div id="pver">Recensioni verificate — solo genitori con iscrizione attiva</div>
+    </div>
+  </div>
+</div>
+</div>
+
+<script>
+const SC={calcio:'#185FA5',tennis:'#1A6B3A',pallavolo:'#8B2252',nuoto:'#0F6E56',basket:'#BA7517',arti:'#A32D2D',atletica:'#534AB7'};
+const SL={calcio:'Calcio',tennis:'Tennis',pallavolo:'Pallavolo',nuoto:'Nuoto',basket:'Basket',arti:'Arti marziali',atletica:'Atletica'};
+const SE={calcio:'⚽',tennis:'🎾',pallavolo:'🏐',nuoto:'🏊',basket:'🏀',arti:'🥋',atletica:'🏃'};
+const CHIP_BG={tutti:'#1B2F5E',...SC};
+
+const DATA=[
+  {id:1,n:'ASD San Vito Bassano 1953',s:'calcio',la:45.7735,lo:11.7479,r:4.4,rc:63,a:'Via Col Moschin 40, Bassano',h:'Mar/Gio/Sab 16:30–19:00',e:'5–16 anni',q:'€180/anno',d:'Centro sportivo storico con campo in erba sintetica. Forte settore giovanile.',rv:[{u:'Marco T.',dt:'Ott 2024',st:5,t:'Ottima società, allenatori professionali e attenti. Mio figlio ha imparato moltissimo.'},{u:'Giulia B.',dt:'Set 2024',st:5,t:'Strutture ben mantenute. Il responsabile è sempre disponibile.'},{u:'Andrea M.',dt:'Giu 2024',st:4,t:'Buona organizzazione, orari rispettati.'}]},
+  {id:2,n:'Football Club Bassano 1903',s:'calcio',la:45.771,lo:11.752,r:5.0,rc:2,a:'Via Piave 27, Bassano del Grappa',h:'Lun/Mer/Ven 17:00–19:30',e:'6–18 anni',q:'€200/anno',d:'Storica società calcistica fondata nel 1903. Team giovane e motivato.',rv:[{u:'Roberto P.',dt:'Set 2024',st:5,t:'Grande squadra, giovane e con voglia di crescere. Allenatori fantastici.'}]},
+  {id:3,n:'ASD Santa Croce Bassano',s:'calcio',la:45.748,lo:11.739,r:4.2,rc:50,a:'Via Cà Dolfin, Bassano del Grappa',h:'Lun-Sab 9:00–22:00',e:'5–18 anni',q:'€160/anno',d:'Polisportiva parrocchiale con campo sintetico e bar.',rv:[{u:'Silvia L.',dt:'Nov 2024',st:4,t:'Ambiente familiare e accogliente. Ideale per chi inizia.'},{u:'Davide M.',dt:'Ago 2024',st:5,t:'Ho trascorso anni fantastici qui.'}]},
+  {id:4,n:'ASD Concordia Bassano',s:'calcio',la:45.7456,lo:11.7149,r:5.0,rc:1,a:'Via Colombi 62, Bassano del Grappa',h:'Mar/Gio 16:30–18:30',e:'6–14 anni',q:'€150/anno',d:'Impianto San Lazzaro, settore giovanile educativo.',rv:[{u:'Elena F.',dt:'Ott 2024',st:5,t:'Società seria e organizzata. Mio figlio è cresciuto molto.'}]},
+  {id:5,n:'AS Cittadella 1973',s:'calcio',la:45.641,lo:11.781,r:4.6,rc:53,a:'Via Ca\' Dai Pase 41, Cittadella',h:'Lun-Ven 9:00–18:30',e:'5–18 anni',q:'€220/anno',d:'Storica società di Cittadella con campo sintetico recente ed estate camp.',rv:[{u:'Luca B.',dt:'Set 2024',st:5,t:'Estate camp fantastico. Mio figlio ha adorato gli istruttori.'},{u:'Anna V.',dt:'Lug 2024',st:4,t:'Struttura ottima, parcheggio un po\' scomodo.'}]},
+  {id:6,n:'ASD per Santa Maria',s:'calcio',la:45.619,lo:11.805,r:4.3,rc:57,a:'Via S. Maria 175, Cittadella',h:'Lun/Mer/Ven 16:00–21:30',e:'6–16 anni',q:'€140/anno',d:'Piccola società parrocchiale, attenta ai giovani.',rv:[{u:'Marco G.',dt:'Ott 2024',st:4,t:'Piccolo ma curato. Staff gentile e disponibile.'}]},
+  {id:7,n:'Società Tennis Bassano',s:'tennis',la:45.7717,lo:11.7505,r:4.3,rc:96,a:'Via Col Fagheron 10, Bassano',h:'Lun-Dom 8:00–23:00',e:'5–18 anni',q:'€350/anno',d:'5 campi da tennis, istruttori FIT, piscina inclusa. Corsi per tutti i livelli.',rv:[{u:'Paola R.',dt:'Nov 2024',st:5,t:'Club storico di Bassano. Istruttori preparatissimi!'},{u:'Giorgio S.',dt:'Set 2024',st:4,t:'Ottima struttura, piscina inclusa. Solo il parcheggio è scomodo.'}]},
+  {id:8,n:'ASD Volley Rosà',s:'pallavolo',la:45.728,lo:11.773,r:4.5,rc:10,a:'Via San Bonaventura 4, Rosà',h:'Lun-Sab 17:00–23:00',e:'7–18 anni',q:'€180/anno',d:'Palestra moderna a Rosà. Corsi pomeridiani e serali.',rv:[{u:'Federica T.',dt:'Nov 2024',st:5,t:'Ambiente sportivo sano. Mia figlia ha trovato amiche per la vita.'}]},
+  {id:9,n:'ASD Volley Cassola',s:'pallavolo',la:45.733,lo:11.800,r:4.7,rc:13,a:'Piazza Aldo Moro 2, Cassola',h:'Mar/Gio 17:00–21:00, Sab 9:00–13:00',e:'6–18 anni',q:'€190/anno',d:'Palazzetto moderno con tribune. Ampio parcheggio.',rv:[{u:'Marina B.',dt:'Ott 2024',st:5,t:'Management che mette l\'atleta al primo posto.'},{u:'Stefano P.',dt:'Ago 2024',st:5,t:'Palazzetto bellissimo, soffitto alto e clima perfetto.'}]},
+  {id:10,n:'ASD Pallavolo Belvedere',s:'pallavolo',la:45.687,lo:11.772,r:2.8,rc:5,a:'Via Schola Cantorum 8, Tezze s.B.',h:'Lun-Ven 17:00–22:00',e:'8–18 anni',q:'€160/anno',d:'Società in crescita con nuovo staff tecnico a Tezze sul Brenta.',rv:[{u:'Luigi F.',dt:'Set 2024',st:3,t:'Struttura piccola ma con buona volontà.'}]},
+  {id:11,n:'Pallavolo Marostica ASD',s:'pallavolo',la:45.736,lo:11.634,r:4.7,rc:3,a:'Via Rinalda 35, Pianezze',h:'Mar/Gio/Sab 17:00–20:30',e:'6–16 anni',q:'€170/anno',d:'Zona Marostica, palestra accogliente. Minivolley e corsi avanzati.',rv:[{u:'Chiara V.',dt:'Ott 2024',st:5,t:'Ottima realtà locale, staff giovane e motivato.'}]},
+  {id:12,n:'New Volley Cartigliano',s:'pallavolo',la:45.712,lo:11.691,r:4.6,rc:7,a:'Viale Lungo Brenta, Cartigliano',h:'Lun/Mer/Ven 17:00–20:30',e:'7–18 anni',q:'€165/anno',d:'Ottimo rapporto qualità/prezzo a Cartigliano.',rv:[{u:'Elena M.',dt:'Set 2024',st:5,t:'Ben gestita e con grande attenzione ai giovani.'}]},
+  {id:13,n:'Orange1 Basket Bassano',s:'basket',la:45.769,lo:11.711,r:4.1,rc:19,a:'Via Villaggio Europa 2, Bassano',h:'Lun/Mer/Ven 17:00–20:00',e:'5–18 anni',q:'€250/anno',d:'Principale club basket di Bassano. Minibasket e percorsi agonistici.',rv:[{u:'Marta L.',dt:'Nov 2024',st:5,t:'Per i giovani con talento, è la fucina giusta.'},{u:'Claudio B.',dt:'Mar 2024',st:3,t:'Buona struttura ma gestione gruppi da migliorare.'}]},
+  {id:14,n:'MBA Association Bassano',s:'basket',la:45.768,lo:11.723,r:4.0,rc:8,a:'Via SS. Trinità 8, Bassano del Grappa',h:'Lun/Mer/Gio 16:30–18:30',e:'6–14 anni',q:'€200/anno',d:'Allenamenti pomeridiani 3 volte a settimana. Ottima per principianti.',rv:[{u:'Paolo R.',dt:'Ott 2024',st:4,t:'Grande ASD, atmosfera familiare e allenatori disponibili.'}]},
+  {id:15,n:'Aquapolis Bassano',s:'nuoto',la:45.7459,lo:11.7413,r:4.4,rc:638,a:'Via Cà Dolfin 139, Bassano d.G.',h:'Lun-Ven 6:50–22:00, Sab-Dom 8:30–18:00',e:'3–18 anni',q:'€380/anno',d:'Impianto moderno, vasca 25m, acqua calda, bar. Corsi dalla prima infanzia.',rv:[{u:'Irene V.',dt:'Nov 2024',st:5,t:'La mia seconda casa. Musica buona, acqua pulita, staff professionale.'},{u:'Marco J.',dt:'Set 2024',st:4,t:'Struttura moderna e funzionale.'}]},
+  {id:16,n:'Swimming Club Bassano',s:'nuoto',la:45.756,lo:11.736,r:4.0,rc:92,a:'Via Sibelius 5, Bassano del Grappa',h:'Lun-Ven 8:00–21:00, Sab-Dom 8:30–19:00',e:'4–18 anni',q:'€320/anno',d:'Storica piscina bassanese. Ambiente familiare, istruttori storici.',rv:[{u:'Alberto N.',dt:'Ago 2024',st:4,t:'Ho imparato a nuotare qui. Ancora un posto dove ci si sente a casa.'}]},
+  {id:17,n:'Swimming Rosà Center',s:'nuoto',la:45.7278,lo:11.7756,r:4.4,rc:983,a:'Via San Bonaventura 8, Rosà',h:'Lun 7:00–22:00, Mar 8:30–22:00, Sab 8:30–19:00',e:'3–18 anni',q:'€340/anno',d:'Tre piscine, ristorante, playground, wellness. Ideale per le famiglie.',rv:[{u:'Sara T.',dt:'Lug 2024',st:5,t:'Perfetto con bambini. Tre piscine, ristorante, playground.'},{u:'Michael K.',dt:'Giu 2024',st:4,t:'Ottima struttura wellness.'}]},
+  {id:18,n:'Swimming Tezze Center',s:'nuoto',la:45.6813,lo:11.7599,r:4.5,rc:426,a:'Via Tevere 15, Tezze sul Brenta',h:'Mar-Sab 8:00–22:00',e:'4–18 anni',q:'€310/anno',d:'Vasca 25m, personal trainer dedicato. Istruttrice Mara eccezionale.',rv:[{u:'Laura F.',dt:'Ott 2024',st:5,t:'Mara è una guru del nuoto. Professionale, empatica, appassionata.'},{u:'Davide P.',dt:'Set 2024',st:4,t:'Pulizia impeccabile, staff gentile.'}]},
+  {id:19,n:'Centro Nuoto Cittadella',s:'nuoto',la:45.6429,lo:11.7787,r:4.3,rc:880,a:'V. Angelo Gabrielli 13, Cittadella',h:'Lun-Dom (stagionale)',e:'3–18 anni',q:'€360/anno',d:'Piscina bella e mantenuta con area estiva. Corsi strutturati.',rv:[{u:'Lorena B.',dt:'Ago 2024',st:4,t:'Piscina molto bella e pulita, staff cordiale.'},{u:'Marco R.',dt:'Lug 2024',st:5,t:'Corsi ben strutturati per i bambini.'}]},
+  {id:20,n:'ASD Judo BU-SEN Bassano',s:'arti',la:45.7632,lo:11.7343,r:5.0,rc:2,a:'P.za L. Cadorna 34a, Bassano d.G.',h:'Lun 18:00–20:00, Mer/Ven 18:00–21:15',e:'5–18 anni',q:'€220/anno',d:'Palestra judo nel cuore di Bassano. Grande spirito di gruppo.',rv:[{u:'Simona C.',dt:'Nov 2024',st:5,t:'Palestra bellissima, gruppo fantastico. Tecnica insegnata con passione.'}]},
+  {id:21,n:'Shinpo – Arti Orientali',s:'arti',la:45.7714,lo:11.7524,r:4.7,rc:26,a:'Via Piave 115-117, Bassano d.G.',h:'Lun-Ven 6:00–20:00',e:'6–18 anni',q:'€240/anno',d:'Karate, tai chi, pilates. Insegnanti qualificati, clima stimolante.',rv:[{u:'Misleidy F.',dt:'Ott 2024',st:5,t:'Posto meraviglioso. Insegnanti eccezionali, grande famiglia.'},{u:'Giovanni L.',dt:'Set 2024',st:4,t:'Corsi per bambini insuperabili.'}]},
+  {id:22,n:'Karate Byakurenkaikan',s:'arti',la:45.7586,lo:11.7633,r:5.0,rc:20,a:'Via Monte Pertica 15, San Giuseppe',h:'Lun-Ven 10:00–22:30, Sab 10:00–17:00',e:'6–18 anni',q:'€260/anno',d:'Dojo full-contact kyokushin. Maestro con esperienza diretta in Giappone.',rv:[{u:'Giorgio A.',dt:'Nov 2024',st:5,t:'Tecnica, etica, valori autentici del karate.'},{u:'Paola C.',dt:'Set 2024',st:5,t:'Maestro certificato in Giappone. Karate vero.'}]},
+  {id:23,n:'Kyoto Judo Kai Cittadella',s:'arti',la:45.6418,lo:11.7759,r:4.7,rc:6,a:'V. Angelo Gabrielli 32, Cittadella',h:'Mar/Ven 17:30–21:00',e:'6–16 anni',q:'€200/anno',d:'Scuola judo a Cittadella, ottimo rapporto tecnico-educativo.',rv:[{u:'Francesco B.',dt:'Ott 2024',st:5,t:'Ambiente sano e rispettoso. Mio figlio adora gli allenamenti.'}]},
+  {id:24,n:'Group Athletic Bassano',s:'atletica',la:45.7512,lo:11.7344,r:4.2,rc:126,a:'Via Maritain 2, Bassano del Grappa',h:'Lun-Ven pomeriggio',e:'6–18 anni',q:'€180/anno',d:'Pista di atletica leggera vicino al centro. Attività scolastiche e agonismo.',rv:[{u:'Carlo R.',dt:'Set 2024',st:4,t:'Allenatori professionali. Accolgono principianti con entusiasmo.'},{u:'Anna L.',dt:'Lug 2024',st:5,t:'I ragazzi si divertono e imparano il rispetto.'}]}
+];
+
+const ULA=45.765,ULO=11.735;
+const LATMAX=45.830,LATMIN=45.580,LONMIN=11.560,LONMAX=11.920;
+
+function hav(la1,lo1,la2,lo2){const R=6371,a=Math.sin((la2-la1)*Math.PI/360)**2+Math.cos(la1*Math.PI/180)*Math.cos(la2*Math.PI/180)*Math.sin((lo2-lo1)*Math.PI/360)**2;return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));}
+function fd(d){return d<1?Math.round(d*1000)+'m':d.toFixed(1)+'km';}
+function st(n){return '★'.repeat(Math.round(n))+'☆'.repeat(5-Math.round(n));}
+
+let curSport='tutti',selId=null,canvas,ctx,W,H;
+
+function geo(la,lo){
+  return {x:(lo-LONMIN)/(LONMAX-LONMIN)*W, y:(1-(la-LATMIN)/(LATMAX-LATMIN))*H};
+}
+
+function drawMap(){
+  ctx.clearRect(0,0,W,H);
+
+  ctx.fillStyle='#dce8d0'; ctx.fillRect(0,0,W,H);
+
+  for(let y=0;y<H;y+=22){ctx.strokeStyle='#c8dab8';ctx.lineWidth=.5;ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}
+  for(let x=0;x<W;x+=22){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();}
+
+  function river(pts,w1,c1,w2,c2){
+    const pp=pts.map(([la,lo])=>geo(la,lo));
+    ctx.beginPath();pp.forEach((p,i)=>i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y));
+    ctx.strokeStyle=c1;ctx.lineWidth=w1;ctx.lineCap='round';ctx.lineJoin='round';ctx.stroke();
+    ctx.beginPath();pp.forEach((p,i)=>i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y));
+    ctx.strokeStyle=c2;ctx.lineWidth=w2;ctx.stroke();
+  }
+  river([[45.817,11.727],[45.800,11.730],[45.785,11.732],[45.773,11.733],[45.765,11.736],[45.752,11.738],[45.740,11.742],[45.730,11.750],[45.720,11.758],[45.710,11.762],[45.698,11.760],[45.687,11.758],[45.676,11.755],[45.665,11.752],[45.655,11.748]],11,'#7eb0cc',7,'#a8ccdf');
+
+  function road(pts,wO,cO,wI,cI){
+    const pp=pts.map(([la,lo])=>geo(la,lo));
+    ctx.beginPath();pp.forEach((p,i)=>i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y));
+    ctx.strokeStyle=cO;ctx.lineWidth=wO;ctx.lineCap='round';ctx.lineJoin='round';ctx.stroke();
+    ctx.beginPath();pp.forEach((p,i)=>i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y));
+    ctx.strokeStyle=cI;ctx.lineWidth=wI;ctx.stroke();
+  }
+  road([[45.810,11.728],[45.790,11.730],[45.773,11.732],[45.760,11.734],[45.750,11.737],[45.740,11.744],[45.730,11.754],[45.720,11.763],[45.710,11.768],[45.700,11.770],[45.690,11.765],[45.680,11.762],[45.670,11.762],[45.660,11.762],[45.651,11.780],[45.641,11.785]],9,'#fff',6,'#f0a030');
+  road([[45.768,11.620],[45.762,11.650],[45.758,11.680],[45.755,11.710],[45.752,11.735],[45.748,11.760],[45.744,11.800],[45.740,11.830]],6,'#fff',4,'#e8e0c0');
+  road([[45.615,11.680],[45.620,11.720],[45.625,11.760],[45.630,11.820],[45.633,11.870]],7,'#fff',5,'#2060a0');
+  [[45.765,11.735],[45.762,11.770],[45.762,11.800]].length>0&&road([[45.765,11.735],[45.762,11.770],[45.762,11.800]],4,'#fff',2,'#ddd');
+  road([[45.741,11.800],[45.735,11.780],[45.730,11.754]],4,'#fff',2,'#ddd');
+  road([[45.720,11.758],[45.713,11.740],[45.710,11.690]],4,'#fff',2,'#ddd');
+  road([[45.710,11.762],[45.710,11.800]],4,'#fff',2,'#ddd');
+  road([[45.680,11.758],[45.680,11.790]],4,'#fff',2,'#ddd');
+  road([[45.650,11.770],[45.645,11.800],[45.641,11.830]],4,'#fff',2,'#ddd');
+
+  const towns=[
+    {la:45.765,lo:11.735,r:14,nm:'Bassano\ndel Grappa',big:true},
+    {la:45.641,lo:11.783,r:12,nm:'Cittadella',big:true},
+    {la:45.762,lo:11.770,r:8,nm:"Romano d'Ez.",big:false},
+    {la:45.744,lo:11.800,r:7,nm:'Cassola',big:false},
+    {la:45.720,lo:11.773,r:7,nm:'Rosà',big:false},
+    {la:45.683,lo:11.758,r:7,nm:'Tezze s.B.',big:false},
+    {la:45.710,lo:11.689,r:6,nm:'Cartigliano',big:false},
+    {la:45.746,lo:11.657,r:8,nm:'Marostica',big:false},
+  ];
+  towns.forEach(t=>{
+    const p=geo(t.la,t.lo);
+    ctx.beginPath();ctx.arc(p.x,p.y,t.r,0,Math.PI*2);
+    ctx.fillStyle=t.big?'#c8b888':'#d8cc99';ctx.fill();
+    ctx.strokeStyle=t.big?'#8a6840':'#a08850';ctx.lineWidth=t.big?2:1;ctx.stroke();
+    ctx.font=`${t.big?'bold ':''} ${t.big?11:9}px system-ui`;
+    ctx.textAlign='center';ctx.textBaseline='top';
+    const lines=t.nm.split('\n');
+    const tx=t.big?p.x+t.r+18:p.x+t.r+5;
+    lines.forEach((ln,i)=>{
+      ctx.fillStyle='#fff';
+      [-1,0,1].forEach(dx=>[-1,0,1].forEach(dy=>ctx.fillText(ln,tx+dx,p.y-5+i*11+dy)));
+      ctx.fillStyle='#1a0a00';ctx.fillText(ln,tx,p.y-5+i*11);
+    });
+  });
+
+  ctx.font='8px system-ui';ctx.textAlign='left';ctx.fillStyle='#c07010';
+  const sp=geo(45.745,11.745);ctx.fillText('SP47',sp.x+3,sp.y-10);
+  const a31=geo(45.624,11.760);
+  ctx.fillStyle='#fff';ctx.fillRect(a31.x-2,a31.y-2,22,12);
+  ctx.fillStyle='#2060a0';ctx.fillText('A31',a31.x,a31.y+8);
+
+  const br=geo(45.703,11.762);ctx.fillStyle='#4488aa';ctx.font='8px system-ui';ctx.fillText('Fiume Brenta',br.x+4,br.y-8);
+
+  const pins=DATA.map(a=>({...a,dist:hav(ULA,ULO,a.la,a.lo)})).sort((a,b)=>a.dist-b.dist);
+  pins.forEach(a=>{
+    const p=geo(a.la,a.lo);
+    const active=curSport==='tutti'||a.s===curSport;
+    const sel=selId===a.id;
+    const sz=sel?16:12;
+    ctx.globalAlpha=active?1:0.2;
+    ctx.beginPath();ctx.arc(p.x,p.y,sz,0,Math.PI*2);
+    ctx.fillStyle=SC[a.s]||'#333';ctx.fill();
+    ctx.strokeStyle='#fff';ctx.lineWidth=sel?3:2;ctx.stroke();
+    if(sel){ctx.beginPath();ctx.arc(p.x,p.y,sz+4,0,Math.PI*2);ctx.strokeStyle=SC[a.s];ctx.lineWidth=2;ctx.globalAlpha=.4;ctx.stroke();ctx.globalAlpha=1;}
+    ctx.font=`${sz-1}px serif`;ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.fillText(SE[a.s]||'●',p.x,p.y);
+    ctx.globalAlpha=1;
+  });
+
+  const up=geo(ULA,ULO);
+  ctx.beginPath();ctx.arc(up.x,up.y,8,0,Math.PI*2);
+  ctx.fillStyle='#E8920A';ctx.fill();
+  ctx.strokeStyle='#fff';ctx.lineWidth=2.5;ctx.stroke();
+  ctx.beginPath();ctx.arc(up.x,up.y,14,0,Math.PI*2);
+  ctx.strokeStyle='#E8920A';ctx.lineWidth=1.5;ctx.globalAlpha=.4;ctx.stroke();ctx.globalAlpha=1;
+
+  const nl=geo(45.820,11.900);
+  const ax=W-30,ay=30;
+  ctx.fillStyle='#333';ctx.beginPath();ctx.moveTo(ax,ay-16);ctx.lineTo(ax-6,ay+4);ctx.lineTo(ax,ay-2);ctx.lineTo(ax+6,ay+4);ctx.closePath();ctx.fill();
+  ctx.fillStyle='#aaa';ctx.beginPath();ctx.moveTo(ax,ay-2);ctx.lineTo(ax-6,ay+4);ctx.lineTo(ax,ay+10);ctx.lineTo(ax+6,ay+4);ctx.closePath();ctx.fill();
+  ctx.font='bold 9px system-ui';ctx.fillStyle='#333';ctx.textAlign='center';ctx.fillText('N',ax,ay+21);
+}
+
+function getClickedASD(x,y){
+  let best=null,bd=20;
+  DATA.forEach(a=>{
+    if(curSport!=='tutti'&&a.s!==curSport)return;
+    const p=geo(a.la,a.lo);
+    const d=Math.hypot(p.x-x,p.y-y);
+    if(d<bd){bd=d;best=a;}
+  });
+  return best;
+}
+
+function renderList(){
+  const list=document.getElementById('list');
+  const profile=document.getElementById('profile');
+  list.style.display='block';
+  profile.classList.remove('vis');
+
+  let d=DATA.map(a=>({...a,dist:hav(ULA,ULO,a.la,a.lo)})).sort((a,b)=>a.dist-b.dist);
+  const q=document.getElementById('qi').value.toLowerCase();
+  if(curSport!=='tutti') d=d.filter(a=>a.s===curSport);
+  if(q) d=d.filter(a=>a.n.toLowerCase().includes(q)||SL[a.s].toLowerCase().includes(q));
+
+  document.getElementById('cnt').textContent=`${d.length} societ${d.length===1?'à':'à'}`;
+  list.innerHTML=d.map(a=>`
+    <div class="ac${selId===a.id?' sel':''}" onclick="openProfile(${a.id})">
+      <div class="at"><div class="an">${a.n}</div><span class="ab" style="background:${SC[a.s]}">${SL[a.s]}</span></div>
+      <div class="am"><span class="sg">${st(a.r)}</span><span>${a.r.toFixed(1)} (${a.rc})</span><span style="color:var(--color-text-tertiary)">· ${fd(a.dist)}</span></div>
+    </div>
+  `).join('');
+  drawMap();
+}
+
+function openProfile(id){
+  selId=id;
+  const a=DATA.find(x=>x.id===id);
+  document.getElementById('list').style.display='none';
+  const prof=document.getElementById('profile');
+  prof.classList.add('vis');
+
+  const cov=document.getElementById('pcov');
+  cov.style.background=SC[a.s];
+  cov.innerHTML=`<span style="background:rgba(255,255,255,.2);color:#fff;padding:4px 10px;border-radius:20px;font-size:12px;font-weight:500">${SE[a.s]} ${SL[a.s]}</span>`;
+  document.getElementById('pname').textContent=a.n;
+  document.getElementById('prat').innerHTML=`<span style="color:#BA7517">${st(a.r)}</span><span>${a.r.toFixed(1)}</span><span style="color:var(--color-text-tertiary)">(${a.rc} recensioni)</span>`;
+  document.getElementById('pinfos').innerHTML=[
+    {i:'📍',v:a.a},{i:'🕐',v:a.h},{i:'👶',v:a.e},{i:'💶',v:a.q},{i:'📝',v:a.d}
+  ].map(r=>`<div class="ir"><span class="ii">${r.i}</span><span class="iv">${r.v}</span></div>`).join('');
+  document.getElementById('prevs').innerHTML=a.rv.map(r=>`
+    <div class="rc"><div class="rh"><span class="ru">${r.u}</span><span style="display:flex;gap:4px;align-items:center"><span style="color:#BA7517;font-size:11px">${'★'.repeat(r.st)}</span><span class="rd">${r.dt}</span></span></div><div class="rt">"${r.t}"</div></div>
+  `).join('');
+  prof.scrollTop=0;
+  drawMap();
+}
+
+window.addEventListener('load',()=>{
+  canvas=document.getElementById('mc');
+  ctx=canvas.getContext('2d');
+  const mw=document.getElementById('mapwrap');
+  function resize(){
+    W=mw.clientWidth;H=mw.clientHeight;
+    canvas.width=W;canvas.height=H;
+    drawMap();
+  }
+  resize();
+  new ResizeObserver(resize).observe(mw);
+
+  canvas.addEventListener('click',e=>{
+    const r=canvas.getBoundingClientRect();
+    const a=getClickedASD(e.clientX-r.left,e.clientY-r.top);
+    if(a){openProfile(a.id);document.getElementById('list').style.display='none';}
+  });
+  canvas.addEventListener('mousemove',e=>{
+    const r=canvas.getBoundingClientRect();
+    const a=getClickedASD(e.clientX-r.left,e.clientY-r.top);
+    canvas.style.cursor=a?'pointer':'default';
+  });
+
+  document.querySelectorAll('.chip').forEach(c=>c.addEventListener('click',()=>{
+    document.querySelectorAll('.chip').forEach(x=>x.classList.remove('on'));
+    c.classList.add('on');
+    c.style.background=CHIP_BG[c.dataset.s]||'';
+    document.querySelectorAll('.chip:not(.on)').forEach(x=>x.style.background='');
+    curSport=c.dataset.s;selId=null;renderList();
+  }));
+
+  document.getElementById('qi').addEventListener('input',()=>{selId=null;renderList();});
+  document.getElementById('pb').addEventListener('click',()=>{selId=null;renderList();});
+  document.getElementById('cbtn').addEventListener('click',()=>{const a=DATA.find(x=>x.id===selId);if(a)alert('Funzione disponibile nella versione completa.\nContatteresti:\n'+a.n);});
+
+  renderList();
+});
+</script>
