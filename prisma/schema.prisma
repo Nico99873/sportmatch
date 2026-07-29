@@ -1,0 +1,96 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Sport {
+  CALCIO
+  NUOTO
+  PALLAVOLO
+  BASKET
+  TENNIS
+  ARTI_MARZIALI
+  ATLETICA
+}
+
+enum SubscriptionPlan {
+  FREE
+  PREMIUM
+}
+
+model Asd {
+  id          String   @id @default(cuid())
+  name        String
+  email       String   @unique
+  password    String
+  sport       Sport
+  address     String
+  lat         Float
+  lon         Float
+  description String
+  photoUrl    String?
+  rating      Float    @default(0)
+
+  subscriptionPlan   SubscriptionPlan @default(FREE)
+  subscriptionSince  DateTime?
+
+  categories      AsdCategory[]
+  reviews         Review[]
+  contactRequests ContactRequest[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model AsdCategory {
+  id        String   @id @default(cuid())
+  asd       Asd      @relation(fields: [asdId], references: [id], onDelete: Cascade)
+  asdId     String
+  name      String
+  ageMin    Int?
+  ageMax    Int?
+  hours     String
+  annualFee Int
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Review {
+  id        String   @id @default(cuid())
+  asd       Asd      @relation(fields: [asdId], references: [id], onDelete: Cascade)
+  asdId     String
+  authorName String
+  rating    Int
+  comment   String
+  createdAt DateTime @default(now())
+}
+
+enum ContactStatus {
+  PENDING
+  BILLABLE
+  FREE_QUOTA
+}
+
+enum EnrolleeType {
+  SELF
+  CHILD
+}
+
+model ContactRequest {
+  id           String        @id @default(cuid())
+  asd          Asd           @relation(fields: [asdId], references: [id], onDelete: Cascade)
+  asdId        String
+  contactName  String
+  contactEmail String
+  contactPhone String
+  enrolleeType EnrolleeType  @default(CHILD)
+  enrolleeAge  Int?
+  message      String
+  status       ContactStatus @default(PENDING)
+  billed       Boolean       @default(false)
+  createdAt    DateTime      @default(now())
+}
