@@ -1,7 +1,7 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
-import { countContactsThisMonth, FREE_CONTACTS_PER_MONTH } from "@/lib/contact";
+import { countContactsThisMonth, hasUnlimitedContacts, FREE_PLAN_CONTACT_LIMIT } from "@/lib/contact";
 
 export type ContactFormState = {
   ok: boolean;
@@ -29,8 +29,15 @@ export async function submitContactRequest(
     return { ok: false, message: "Società non trovata." };
   }
 
-  const contactsThisMonth = await countContactsThisMonth(asdId);
-  const isBillable = contactsThisMonth >= FREE_CONTACTS_PER_MONTH;
+  if (!hasUnlimitedContacts(asd.subscriptionPlan)) {
+    const contactsThisMonth = await countContactsThisMonth(asdId);
+    if (contactsThisMonth >= FREE_PLAN_CONTACT_LIMIT) {
+      return {
+        ok: false,
+        message: `Questa società ha raggiunto il limite di ${FREE_PLAN_CONTACT_LIMIT} richieste per questo mese. Riprova il mese prossimo.`,
+      };
+    }
+  }
 
   await prisma.contactRequest.create({
     data: {
@@ -41,7 +48,6 @@ export async function submitContactRequest(
       enrolleeType,
       enrolleeAge: enrolleeAgeRaw ? Number(enrolleeAgeRaw) : null,
       message,
-      status: isBillable ? "BILLABLE" : "FREE_QUOTA",
     },
   });
 

@@ -2,12 +2,13 @@
 
 import { useMemo, useRef, useState } from "react";
 import dynamic from "next/dynamic";
-import type { Sport } from "@prisma/client";
+import type { Sport, SubscriptionPlan } from "@prisma/client";
 import ResultsList from "./ResultsList";
 import { SPORTS, SPORT_INFO } from "@/lib/sports";
 import { BASSANO_CENTER, haversineKm } from "@/lib/geo";
 import { geocodePlace, searchPlaces, type GeocodeResult } from "@/lib/geocode";
 import { anyCategoryAcceptsAge, type AgeRange } from "@/lib/eligibility";
+import { comparePlanPriority } from "@/lib/plans";
 
 const SportMap = dynamic(() => import("./SportMap"), {
   ssr: false,
@@ -34,6 +35,7 @@ export type AsdListItem = {
   rating: number;
   reviewCount: number;
   address: string;
+  subscriptionPlan: SubscriptionPlan;
   categories: AsdCategorySummary[];
 };
 
@@ -136,7 +138,14 @@ export default function HomeExplorer({ asds }: { asds: AsdListItem[] }) {
         return true;
       })
       .map((a) => ({ ...a, distanceKm: haversineKm(origin, { lat: a.lat, lon: a.lon }) }))
-      .sort((a, b) => a.distanceKm - b.distanceKm);
+      .sort((a, b) => {
+        const distanceDiff = a.distanceKm - b.distanceKm;
+        const EQUAL_DISTANCE_THRESHOLD_KM = 0.05;
+        if (Math.abs(distanceDiff) < EQUAL_DISTANCE_THRESHOLD_KM) {
+          return comparePlanPriority(a.subscriptionPlan, b.subscriptionPlan);
+        }
+        return distanceDiff;
+      });
   }, [asds, activeSports, nameQuery, enrolleeAge, origin]);
 
   return (

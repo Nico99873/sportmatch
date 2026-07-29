@@ -22,6 +22,7 @@ export default async function Home() {
     rating: a.rating,
     reviewCount: a._count.reviews,
     address: a.address,
+    subscriptionPlan: a.subscriptionPlan,
     categories: a.categories.map((c) => ({
       id: c.id,
       name: c.name,

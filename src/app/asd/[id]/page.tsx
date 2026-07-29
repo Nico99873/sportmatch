@@ -22,6 +22,8 @@ export default async function AsdProfilePage({ params }: { params: Promise<{ id:
 
   if (!asd) notFound();
 
+  await prisma.asd.update({ where: { id }, data: { profileViewCount: { increment: 1 } } });
+
   const info = SPORT_INFO[asd.sport];
 
   return (
@@ -52,6 +54,11 @@ export default async function AsdProfilePage({ params }: { params: Promise<{ id:
                 >
                   {info.emoji} {info.label}
                 </span>
+                {asd.subscriptionPlan === "PREMIUM" && (
+                  <span className="rounded-full bg-sm-blue/10 px-2.5 py-1 text-xs font-semibold text-sm-blue">
+                    ✓ Società verificata
+                  </span>
+                )}
               </div>
               <div className="mb-3 flex items-center gap-2">
                 <StarRating rating={asd.rating} />
@@ -106,6 +113,12 @@ export default async function AsdProfilePage({ params }: { params: Promise<{ id:
                         <StarRating rating={r.rating} size="text-xs" />
                       </div>
                       <p className="text-sm italic text-zinc-600">&ldquo;{r.comment}&rdquo;</p>
+                      {r.asdReply && (
+                        <div className="mt-2 rounded-lg bg-zinc-50 p-2.5 text-xs text-zinc-600">
+                          <span className="font-medium text-zinc-800">Risposta di {asd.name}: </span>
+                          {r.asdReply}
+                        </div>
+                      )}
                     </li>
                   ))}
                 </ul>

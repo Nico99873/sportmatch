@@ -10,6 +10,7 @@ const asds = [
     lat: 45.7735,
     lon: 11.7479,
     rating: 4.4,
+    subscriptionPlan: "PREMIUM" as const,
     address: "Via Col Moschin 40, Bassano del Grappa (VI)",
     categories: [
       { name: "Pulcini", ageMin: 5, ageMax: 8, hours: "Mar/Gio 16:30-17:30", annualFee: 150 },
@@ -20,7 +21,13 @@ const asds = [
       "Storica società calcistica di Bassano del Grappa, fondata nel 1953. Settore giovanile radicato sul territorio, campi in erba naturale e sintetica, staff tecnico qualificato FIGC.",
     photoUrl: null,
     reviews: [
-      { authorName: "Marco B.", rating: 5, comment: "Ottimi allenatori, mio figlio si diverte tantissimo." },
+      {
+        authorName: "Marco B.",
+        rating: 5,
+        comment: "Ottimi allenatori, mio figlio si diverte tantissimo.",
+        asdReply: "Grazie mille Marco, un piacere avere tuo figlio con noi!",
+        asdReplyAt: new Date(),
+      },
       { authorName: "Laura T.", rating: 4, comment: "Organizzazione seria, un po' affollati i gruppi under 10." },
     ],
   },
@@ -31,6 +38,7 @@ const asds = [
     lat: 45.7717,
     lon: 11.7505,
     rating: 4.3,
+    subscriptionPlan: "BASE" as const,
     address: "Via Col Fagheron 10, Bassano del Grappa (VI)",
     categories: [{ name: "Tutti", ageMin: 5, ageMax: 18, hours: "Lun-Dom 8:00-23:00", annualFee: 350 }],
     description:

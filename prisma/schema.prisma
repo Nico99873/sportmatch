@@ -18,6 +18,7 @@ enum Sport {
 
 enum SubscriptionPlan {
   FREE
+  BASE
   PREMIUM
 }
 
@@ -34,8 +35,9 @@ model Asd {
   photoUrl    String?
   rating      Float    @default(0)
 
-  subscriptionPlan   SubscriptionPlan @default(FREE)
-  subscriptionSince  DateTime?
+  subscriptionPlan  SubscriptionPlan @default(FREE)
+  subscriptionSince DateTime?
+  profileViewCount  Int              @default(0)
 
   categories      AsdCategory[]
   reviews         Review[]
@@ -60,19 +62,15 @@ model AsdCategory {
 }
 
 model Review {
-  id        String   @id @default(cuid())
-  asd       Asd      @relation(fields: [asdId], references: [id], onDelete: Cascade)
-  asdId     String
+  id         String    @id @default(cuid())
+  asd        Asd       @relation(fields: [asdId], references: [id], onDelete: Cascade)
+  asdId      String
   authorName String
-  rating    Int
-  comment   String
-  createdAt DateTime @default(now())
-}
-
-enum ContactStatus {
-  PENDING
-  BILLABLE
-  FREE_QUOTA
+  rating     Int
+  comment    String
+  asdReply   String?
+  asdReplyAt DateTime?
+  createdAt  DateTime  @default(now())
 }
 
 enum EnrolleeType {
@@ -81,16 +79,14 @@ enum EnrolleeType {
 }
 
 model ContactRequest {
-  id           String        @id @default(cuid())
-  asd          Asd           @relation(fields: [asdId], references: [id], onDelete: Cascade)
+  id           String       @id @default(cuid())
+  asd          Asd          @relation(fields: [asdId], references: [id], onDelete: Cascade)
   asdId        String
   contactName  String
   contactEmail String
   contactPhone String
-  enrolleeType EnrolleeType  @default(CHILD)
+  enrolleeType EnrolleeType @default(CHILD)
   enrolleeAge  Int?
   message      String
-  status       ContactStatus @default(PENDING)
-  billed       Boolean       @default(false)
-  createdAt    DateTime      @default(now())
+  createdAt    DateTime     @default(now())
 }

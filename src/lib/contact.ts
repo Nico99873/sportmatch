@@ -1,7 +1,11 @@
 import { prisma } from "@/lib/prisma";
+import type { SubscriptionPlan } from "@prisma/client";
 
-export const FREE_CONTACTS_PER_MONTH = 3;
-export const PRICE_PER_EXTRA_CONTACT = 2;
+export const FREE_PLAN_CONTACT_LIMIT = 3;
+
+export function hasUnlimitedContacts(plan: SubscriptionPlan) {
+  return plan !== "FREE";
+}
 
 export async function countContactsThisMonth(asdId: string) {
   const now = new Date();
