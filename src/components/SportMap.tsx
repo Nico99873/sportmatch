@@ -49,6 +49,25 @@ function FlyToSelected({ item }: { item?: Item }) {
   return null;
 }
 
+function InvalidateSizeOnVisible() {
+  const map = useMap();
+
+  useEffect(() => {
+    const container = map.getContainer();
+    // Leaflet measures its container once at creation time. On mobile the map
+    // mounts inside the (hidden) "Mappa" tab, so it initializes at 0x0 and
+    // never recovers on its own once the tab becomes visible — this watches
+    // for that visibility/size change and forces Leaflet to re-measure.
+    const observer = new ResizeObserver(() => {
+      map.invalidateSize();
+    });
+    observer.observe(container);
+    return () => observer.disconnect();
+  }, [map]);
+
+  return null;
+}
+
 function FlyToOrigin({ lat, lon }: { lat: number; lon: number }) {
   const map = useMap();
   const isFirstRender = useRef(true);
@@ -116,6 +135,7 @@ export default function SportMap({
       ))}
       <FlyToSelected item={selectedItem} />
       <FlyToOrigin lat={userLoc.lat} lon={userLoc.lon} />
+      <InvalidateSizeOnVisible />
     </MapContainer>
   );
 }
