@@ -127,6 +127,7 @@ export default async function DashboardPage() {
             {PLAN_ORDER.map((planKey) => {
               const info = PLAN_INFO[planKey];
               const isCurrent = planKey === asd.subscriptionPlan;
+              const isUpgrade = PLAN_ORDER.indexOf(planKey) > PLAN_ORDER.indexOf(asd.subscriptionPlan);
               return (
                 <div
                   key={planKey}
@@ -148,7 +149,7 @@ export default async function DashboardPage() {
                       <li key={b}>• {b}</li>
                     ))}
                   </ul>
-                  {!isCurrent && (
+                  {isUpgrade && (
                     <button
                       disabled
                       title="Pagamenti non ancora disponibili in questo prototipo"
