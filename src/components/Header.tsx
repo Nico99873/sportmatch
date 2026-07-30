@@ -5,7 +5,7 @@ export default async function Header() {
   const session = await auth();
 
   return (
-    <header className="sticky top-0 z-30 bg-sm-navy text-white">
+    <header className="sticky top-0 z-30 shrink-0 bg-sm-navy text-white">
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3">
         <Link href="/" className="flex items-baseline gap-1 text-lg font-semibold whitespace-nowrap">
           Sport<span className="text-sm-orange">Match</span>

@@ -149,12 +149,12 @@ export default function HomeExplorer({ asds }: { asds: AsdListItem[] }) {
   }, [asds, activeSports, nameQuery, enrolleeAge, origin]);
 
   return (
-    <div className="flex min-h-screen flex-col">
-      <div className="bg-sm-blue px-4 py-2.5 text-center text-sm font-medium text-white sm:text-base">
+    <div className="flex min-h-0 flex-1 flex-col">
+      <div className="shrink-0 bg-sm-blue px-4 py-2.5 text-center text-sm font-medium text-white sm:text-base">
         Trova la società sportiva giusta, su mappa
       </div>
 
-      <div className="border-b bg-white px-4 py-3">
+      <div className="shrink-0 border-b bg-white px-4 py-3">
         <div className="mx-auto flex max-w-7xl flex-col gap-3">
           <form onSubmit={searchZone} className="flex gap-2">
             <div className="relative flex-1">
@@ -253,7 +253,7 @@ export default function HomeExplorer({ asds }: { asds: AsdListItem[] }) {
         </div>
       </div>
 
-      <div className="flex border-b bg-white sm:hidden">
+      <div className="flex shrink-0 border-b bg-white sm:hidden">
         <button
           className={`flex-1 py-2 text-sm font-medium ${mobileView === "list" ? "border-b-2 border-sm-blue text-sm-blue" : "text-zinc-500"}`}
           onClick={() => setMobileView("list")}
@@ -268,17 +268,20 @@ export default function HomeExplorer({ asds }: { asds: AsdListItem[] }) {
         </button>
       </div>
 
-      <div className="mx-auto flex w-full max-w-7xl flex-1 flex-col sm:flex-row">
+      <div className="mx-auto flex min-h-0 w-full max-w-7xl flex-1 flex-col sm:flex-row">
         <div
-          className={`${mobileView === "list" ? "flex" : "hidden"} w-full flex-col sm:flex sm:w-[380px] sm:shrink-0 sm:border-r`}
+          className={`${mobileView === "list" ? "flex" : "hidden"} min-h-0 w-full flex-col sm:flex sm:w-[380px] sm:shrink-0 sm:border-r`}
         >
-          <div className="border-b px-4 py-2 text-sm text-zinc-500">
+          <div className="shrink-0 border-b px-4 py-2 text-sm text-zinc-500">
             <strong className="text-zinc-800">{withDistance.length}</strong>{" "}
             {withDistance.length === 1 ? "società trovata" : "società trovate"}
           </div>
           <ResultsList items={withDistance} selectedId={selectedId} onSelect={setSelectedId} />
         </div>
-        <div className={`${mobileView === "map" ? "block" : "hidden"} relative flex-1 sm:block`} style={{ minHeight: 420 }}>
+        <div
+          className={`${mobileView === "map" ? "block" : "hidden"} relative min-h-0 flex-1 sm:block`}
+          style={{ minHeight: 420 }}
+        >
           <SportMap items={withDistance} userLoc={origin} selectedId={selectedId} onSelect={setSelectedId} />
         </div>
       </div>

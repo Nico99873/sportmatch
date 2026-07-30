@@ -34,9 +34,9 @@ export default async function Home() {
   }));
 
   return (
-    <>
+    <div className="flex h-dvh flex-col overflow-hidden">
       <Header />
       <HomeExplorer asds={data} />
-    </>
+    </div>
   );
 }
