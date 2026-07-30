@@ -11,6 +11,9 @@ export default async function Header() {
           Sport<span className="text-sm-orange">Match</span>
         </Link>
         <nav className="flex items-center gap-2 text-sm">
+          <Link href="/come-funziona" className="hidden px-2 py-1.5 transition hover:text-sm-orange sm:inline">
+            Come funziona
+          </Link>
           {session?.user ? (
             <Link
               href="/dashboard"
