@@ -24,7 +24,7 @@ export default async function Header() {
           ) : (
             <>
               <Link
-                href="/registrati"
+                href="/per-le-asd"
                 className="rounded-full border border-white/30 px-3 py-1.5 transition hover:bg-white/10"
               >
                 Sei un&apos;ASD?
