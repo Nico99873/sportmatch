@@ -39,16 +39,6 @@ const userIcon = L.divIcon({
   iconAnchor: [8, 8],
 });
 
-function FlyToSelected({ item }: { item?: Item }) {
-  const map = useMap();
-  useEffect(() => {
-    if (item) {
-      map.flyTo([item.lat, item.lon], Math.max(map.getZoom(), 14), { duration: 0.5 });
-    }
-  }, [item, map]);
-  return null;
-}
-
 function InvalidateSizeOnVisible() {
   const map = useMap();
 
@@ -94,7 +84,6 @@ export default function SportMap({
   selectedId: string | null;
   onSelect: (id: string) => void;
 }) {
-  const selectedItem = items.find((i) => i.id === selectedId);
   const initialCenter = useMemo<[number, number]>(
     () => (items.length ? [items[0].lat, items[0].lon] : [userLoc.lat, userLoc.lon]),
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -138,7 +127,6 @@ export default function SportMap({
           </Popup>
         </Marker>
       ))}
-      <FlyToSelected item={selectedItem} />
       <FlyToOrigin lat={userLoc.lat} lon={userLoc.lon} />
       <InvalidateSizeOnVisible />
     </MapContainer>
