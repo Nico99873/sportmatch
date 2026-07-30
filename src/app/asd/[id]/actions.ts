@@ -1,7 +1,6 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
-import { countContactsThisMonth, hasUnlimitedContacts, FREE_PLAN_CONTACT_LIMIT } from "@/lib/contact";
 
 export type ContactFormState = {
   ok: boolean;
@@ -27,16 +26,6 @@ export async function submitContactRequest(
   const asd = await prisma.asd.findUnique({ where: { id: asdId } });
   if (!asd) {
     return { ok: false, message: "Società non trovata." };
-  }
-
-  if (!hasUnlimitedContacts(asd.subscriptionPlan)) {
-    const contactsThisMonth = await countContactsThisMonth(asdId);
-    if (contactsThisMonth >= FREE_PLAN_CONTACT_LIMIT) {
-      return {
-        ok: false,
-        message: `Questa società ha raggiunto il limite di ${FREE_PLAN_CONTACT_LIMIT} richieste per questo mese. Riprova il mese prossimo.`,
-      };
-    }
   }
 
   await prisma.contactRequest.create({

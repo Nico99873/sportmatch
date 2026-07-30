@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
-import { FREE_PLAN_CONTACT_LIMIT, hasUnlimitedContacts, countContactsThisMonth } from "@/lib/contact";
+import { FREE_PLAN_CONTACT_LIMIT, hasUnlimitedContacts, countContactsThisMonth, markLockedContacts } from "@/lib/contact";
 import { PLAN_INFO, PLAN_ORDER } from "@/lib/plans";
 import { SPORT_INFO } from "@/lib/sports";
 import Header from "@/components/Header";
@@ -17,7 +17,7 @@ export default async function DashboardPage() {
   const asd = await prisma.asd.findUnique({
     where: { id: session.user.id },
     include: {
-      contactRequests: { orderBy: { createdAt: "desc" }, take: 10 },
+      contactRequests: { orderBy: { createdAt: "desc" } },
       reviews: { orderBy: { createdAt: "desc" } },
     },
   });
@@ -28,6 +28,10 @@ export default async function DashboardPage() {
   const unlimited = hasUnlimitedContacts(asd.subscriptionPlan);
   const info = SPORT_INFO[asd.sport];
   const plan = PLAN_INFO[asd.subscriptionPlan];
+
+  const contactsWithLock = markLockedContacts(asd.contactRequests, asd.subscriptionPlan);
+  const lockedCount = contactsWithLock.filter((c) => c.locked).length;
+  const visibleContacts = contactsWithLock.slice(0, 10);
 
   return (
     <div className="flex min-h-screen flex-col bg-zinc-50">
@@ -66,26 +70,50 @@ export default async function DashboardPage() {
 
         <div className="mb-6 rounded-2xl border bg-white p-5 shadow-sm">
           <h2 className="mb-4 text-lg font-semibold text-sm-navy">Ultime richieste di contatto</h2>
-          {asd.contactRequests.length === 0 ? (
+
+          {lockedCount > 0 && (
+            <div className="mb-4 flex items-center justify-between gap-3 rounded-xl border-2 border-dashed border-sm-orange/40 bg-sm-orange/5 p-3">
+              <p className="text-sm text-zinc-700">
+                🔒 Hai <strong>{lockedCount}</strong> {lockedCount === 1 ? "richiesta in attesa" : "richieste in attesa"} —
+                passa al piano Base per visualizzarle.
+              </p>
+            </div>
+          )}
+
+          {visibleContacts.length === 0 ? (
             <p className="text-sm text-zinc-500">Nessuna richiesta ricevuta ancora.</p>
           ) : (
             <ul className="flex flex-col divide-y">
-              {asd.contactRequests.map((c) => (
-                <li key={c.id} className="flex flex-col gap-1 py-3 first:pt-0 last:pb-0">
-                  <span className="text-sm font-medium text-zinc-800">{c.contactName}</span>
-                  <p className="text-xs text-zinc-500">
-                    {c.contactEmail} · {c.contactPhone}
-                    {c.enrolleeType === "SELF"
-                      ? c.enrolleeAge
-                        ? ` · si iscrive lui/lei stesso/a, ${c.enrolleeAge} anni`
-                        : " · si iscrive lui/lei stesso/a"
-                      : c.enrolleeAge
-                        ? ` · iscrive un/una figlio/a di ${c.enrolleeAge} anni`
-                        : " · iscrive un/una figlio/a"}
-                  </p>
-                  <p className="text-sm text-zinc-600">{c.message}</p>
-                </li>
-              ))}
+              {visibleContacts.map((c) =>
+                c.locked ? (
+                  <li key={c.id} className="flex items-center justify-between gap-3 py-3 first:pt-0 last:pb-0">
+                    <div>
+                      <span className="text-sm font-medium text-zinc-400">Richiesta in attesa</span>
+                      <p className="text-xs text-zinc-400">
+                        Ricevuta il {c.createdAt.toLocaleDateString("it-IT")} · contenuto bloccato
+                      </p>
+                    </div>
+                    <span className="shrink-0 rounded-full bg-zinc-100 px-2 py-0.5 text-[11px] font-medium text-zinc-500">
+                      🔒 Piano Base
+                    </span>
+                  </li>
+                ) : (
+                  <li key={c.id} className="flex flex-col gap-1 py-3 first:pt-0 last:pb-0">
+                    <span className="text-sm font-medium text-zinc-800">{c.contactName}</span>
+                    <p className="text-xs text-zinc-500">
+                      {c.contactEmail} · {c.contactPhone}
+                      {c.enrolleeType === "SELF"
+                        ? c.enrolleeAge
+                          ? ` · si iscrive lui/lei stesso/a, ${c.enrolleeAge} anni`
+                          : " · si iscrive lui/lei stesso/a"
+                        : c.enrolleeAge
+                          ? ` · iscrive un/una figlio/a di ${c.enrolleeAge} anni`
+                          : " · iscrive un/una figlio/a"}
+                    </p>
+                    <p className="text-sm text-zinc-600">{c.message}</p>
+                  </li>
+                )
+              )}
             </ul>
           )}
         </div>
