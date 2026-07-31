@@ -18,23 +18,35 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         if (!email || !password) return null;
 
         const asd = await prisma.asd.findUnique({ where: { email } });
-        if (!asd) return null;
+        if (asd) {
+          const valid = await bcrypt.compare(password, asd.password);
+          if (!valid) return null;
+          return { id: asd.id, name: asd.name, email: asd.email, role: "ASD" };
+        }
 
-        const valid = await bcrypt.compare(password, asd.password);
-        if (!valid) return null;
+        const user = await prisma.user.findUnique({ where: { email } });
+        if (user) {
+          const valid = await bcrypt.compare(password, user.password);
+          if (!valid) return null;
+          return { id: user.id, name: user.name, email: user.email, role: "PARENT" };
+        }
 
-        return { id: asd.id, name: asd.name, email: asd.email };
+        return null;
       },
     }),
   ],
   callbacks: {
     jwt({ token, user }) {
-      if (user) token.asdId = user.id;
+      if (user) {
+        token.accountId = user.id;
+        token.role = user.role;
+      }
       return token;
     },
     session({ session, token }) {
       if (session.user) {
-        session.user.id = token.asdId as string;
+        session.user.id = token.accountId as string;
+        session.user.role = token.role as "ASD" | "PARENT";
       }
       return session;
     },

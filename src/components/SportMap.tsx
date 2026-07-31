@@ -15,7 +15,8 @@ type Item = {
   sport: Sport;
   lat: number;
   lon: number;
-  rating: number;
+  realRating: number | null;
+  reviewCount: number;
   distanceKm: number;
   address: string;
 };
@@ -115,7 +116,10 @@ export default function SportMap({
             <div className="text-sm">
               <p className="font-semibold">{item.name}</p>
               <p>
-                {SPORT_INFO[item.sport].emoji} {SPORT_INFO[item.sport].label} · ⭐{item.rating.toFixed(1)}
+                {SPORT_INFO[item.sport].emoji} {SPORT_INFO[item.sport].label}
+                {item.reviewCount > 0
+                  ? ` · ⭐${item.realRating!.toFixed(1)} (${item.reviewCount} recensioni)`
+                  : " · Nessuna recensione ancora"}
               </p>
               <p className="text-xs text-zinc-500">
                 {formatDistance(item.distanceKm)} · {item.address}

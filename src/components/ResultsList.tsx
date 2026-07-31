@@ -12,6 +12,7 @@ export type AsdWithDistance = {
   name: string;
   sport: Sport;
   rating: number;
+  realRating: number | null;
   reviewCount: number;
   address: string;
   categories: (AgeRange & { annualFee: number })[];
@@ -58,8 +59,14 @@ export default function ResultsList({
                 </span>
               </div>
               <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-zinc-500">
-                <StarRating rating={a.rating} />
-                <span>({a.reviewCount} recensioni)</span>
+                {a.reviewCount > 0 ? (
+                  <>
+                    <StarRating rating={a.realRating as number} />
+                    <span>({a.reviewCount} recensioni)</span>
+                  </>
+                ) : (
+                  <span className="text-zinc-400">Nessuna recensione ancora</span>
+                )}
                 <span className="font-medium text-sm-blue">📍 {formatDistance(a.distanceKm)}</span>
               </div>
               <p className="mt-1 truncate text-xs text-zinc-500">{a.address}</p>

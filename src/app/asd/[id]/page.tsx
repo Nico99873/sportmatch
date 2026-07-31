@@ -1,13 +1,17 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { SPORT_INFO } from "@/lib/sports";
 import { summarizeAgeRange } from "@/lib/eligibility";
 import Header from "@/components/Header";
 import StarRating from "@/components/StarRating";
 import ContactForm from "@/components/ContactForm";
+import ReviewForm from "@/components/ReviewForm";
 
 export const dynamic = "force-dynamic";
+
+type ReviewEligibility = "no_session" | "not_parent" | "not_contacted" | "already_reviewed" | "eligible";
 
 export default async function AsdProfilePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -25,6 +29,25 @@ export default async function AsdProfilePage({ params }: { params: Promise<{ id:
   await prisma.asd.update({ where: { id }, data: { profileViewCount: { increment: 1 } } });
 
   const info = SPORT_INFO[asd.sport];
+
+  const reviewCount = asd.reviews.length;
+  const realRating = reviewCount > 0 ? asd.reviews.reduce((sum, r) => sum + r.rating, 0) / reviewCount : null;
+
+  const session = await auth();
+  let reviewEligibility: ReviewEligibility = "no_session";
+  if (session?.user) {
+    if (session.user.role !== "PARENT") {
+      reviewEligibility = "not_parent";
+    } else {
+      const [hasContacted, alreadyReviewed] = await Promise.all([
+        prisma.contactRequest.findFirst({
+          where: { asdId: asd.id, contactEmail: { equals: session.user.email ?? "", mode: "insensitive" } },
+        }),
+        prisma.review.findFirst({ where: { asdId: asd.id, userId: session.user.id } }),
+      ]);
+      reviewEligibility = alreadyReviewed ? "already_reviewed" : hasContacted ? "eligible" : "not_contacted";
+    }
+  }
 
   return (
     <div className="flex min-h-screen flex-col bg-zinc-50">
@@ -61,8 +84,14 @@ export default async function AsdProfilePage({ params }: { params: Promise<{ id:
                 )}
               </div>
               <div className="mb-3 flex items-center gap-2">
-                <StarRating rating={asd.rating} />
-                <span className="text-sm text-zinc-500">({asd.reviews.length} recensioni)</span>
+                {reviewCount > 0 ? (
+                  <>
+                    <StarRating rating={realRating as number} />
+                    <span className="text-sm text-zinc-500">({reviewCount} recensioni)</span>
+                  </>
+                ) : (
+                  <span className="text-sm text-zinc-500">Nessuna recensione ancora</span>
+                )}
               </div>
               <p className="text-sm text-zinc-600">📍 {asd.address}</p>
             </div>
@@ -123,6 +152,29 @@ export default async function AsdProfilePage({ params }: { params: Promise<{ id:
                   ))}
                 </ul>
               )}
+
+              <div className="mt-4 border-t pt-4">
+                {reviewEligibility === "eligible" && <ReviewForm asdId={asd.id} />}
+                {reviewEligibility === "already_reviewed" && (
+                  <p className="text-sm text-zinc-500">Hai già lasciato una recensione per questa società.</p>
+                )}
+                {reviewEligibility === "not_contacted" && (
+                  <p className="text-sm text-zinc-500">
+                    Puoi recensire questa società solo dopo averla contattata tramite il modulo qui a fianco.
+                  </p>
+                )}
+                {reviewEligibility === "not_parent" && (
+                  <p className="text-sm text-zinc-500">Le recensioni sono riservate agli account genitore.</p>
+                )}
+                {reviewEligibility === "no_session" && (
+                  <p className="text-sm text-zinc-500">
+                    <Link href="/login-genitore" className="font-medium text-sm-blue">
+                      Accedi
+                    </Link>{" "}
+                    come genitore per lasciare una recensione dopo aver contattato questa società.
+                  </p>
+                )}
+              </div>
             </div>
           </div>
 

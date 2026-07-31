@@ -33,6 +33,7 @@ export type AsdListItem = {
   lat: number;
   lon: number;
   rating: number;
+  realRating: number | null;
   reviewCount: number;
   address: string;
   subscriptionPlan: SubscriptionPlan;

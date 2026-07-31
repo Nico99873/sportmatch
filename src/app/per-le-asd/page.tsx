@@ -27,6 +27,12 @@ export default function PerLeAsdPage() {
         >
           Registra la tua ASD gratis
         </Link>
+        <p className="mt-3 text-sm text-white/70">
+          Hai già un profilo?{" "}
+          <Link href="/login" className="font-medium text-white underline">
+            Accedi
+          </Link>
+        </p>
       </div>
 
       <div className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-10 px-4 py-10">

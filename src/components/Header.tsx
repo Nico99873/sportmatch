@@ -14,13 +14,17 @@ export default async function Header() {
           <Link href="/come-funziona" className="hidden px-2 py-1.5 transition hover:text-sm-orange sm:inline">
             Come funziona
           </Link>
-          {session?.user ? (
+          {session?.user?.role === "ASD" ? (
             <Link
               href="/dashboard"
               className="rounded-full bg-sm-orange px-3 py-1.5 font-medium text-white transition hover:brightness-95"
             >
               La mia dashboard
             </Link>
+          ) : session?.user ? (
+            <span className="rounded-full bg-white/10 px-3 py-1.5 font-medium">
+              Ciao, {session.user.name}
+            </span>
           ) : (
             <>
               <Link
@@ -30,7 +34,7 @@ export default async function Header() {
                 Sei un&apos;ASD?
               </Link>
               <Link
-                href="/login"
+                href="/login-genitore"
                 className="rounded-full bg-sm-orange px-3 py-1.5 font-medium text-white transition hover:brightness-95"
               >
                 Accedi

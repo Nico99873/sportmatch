@@ -7,12 +7,14 @@ import { SPORT_INFO } from "@/lib/sports";
 import Header from "@/components/Header";
 import SignOutButton from "@/components/SignOutButton";
 import ReplyForm from "@/components/ReplyForm";
+import StarRating from "@/components/StarRating";
 
 export const dynamic = "force-dynamic";
 
 export default async function DashboardPage() {
   const session = await auth();
   if (!session?.user?.id) redirect("/login");
+  if (session.user.role !== "ASD") redirect("/");
 
   const asd = await prisma.asd.findUnique({
     where: { id: session.user.id },
@@ -28,6 +30,9 @@ export default async function DashboardPage() {
   const unlimited = hasUnlimitedContacts(asd.subscriptionPlan);
   const info = SPORT_INFO[asd.sport];
   const plan = PLAN_INFO[asd.subscriptionPlan];
+
+  const reviewCount = asd.reviews.length;
+  const realRating = reviewCount > 0 ? asd.reviews.reduce((sum, r) => sum + r.rating, 0) / reviewCount : null;
 
   const contactsWithLock = markLockedContacts(asd.contactRequests, asd.subscriptionPlan);
   const lockedCount = contactsWithLock.filter((c) => c.locked).length;
@@ -48,6 +53,16 @@ export default async function DashboardPage() {
                 </span>
               )}
             </p>
+            <div className="mt-1 flex items-center gap-2">
+              {reviewCount > 0 ? (
+                <>
+                  <StarRating rating={realRating as number} size="text-xs" />
+                  <span className="text-xs text-zinc-500">({reviewCount} recensioni)</span>
+                </>
+              ) : (
+                <span className="text-xs text-zinc-500">Nessuna recensione ancora</span>
+              )}
+            </div>
           </div>
           <SignOutButton />
         </div>

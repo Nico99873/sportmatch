@@ -22,6 +22,18 @@ enum SubscriptionPlan {
   PREMIUM
 }
 
+model User {
+  id       String @id @default(cuid())
+  name     String
+  email    String @unique
+  password String
+
+  reviews Review[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
 model Asd {
   id          String   @id @default(cuid())
   name        String
@@ -65,12 +77,16 @@ model Review {
   id         String    @id @default(cuid())
   asd        Asd       @relation(fields: [asdId], references: [id], onDelete: Cascade)
   asdId      String
+  user       User?     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId     String?
   authorName String
   rating     Int
   comment    String
   asdReply   String?
   asdReplyAt DateTime?
   createdAt  DateTime  @default(now())
+
+  @@unique([asdId, userId])
 }
 
 enum EnrolleeType {
