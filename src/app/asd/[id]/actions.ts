@@ -2,6 +2,7 @@
 
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { sendContactRequestEmail } from "@/lib/email";
 
 export type ContactFormState = {
   ok: boolean;
@@ -40,6 +41,18 @@ export async function submitContactRequest(
       message,
     },
   });
+
+  try {
+    await sendContactRequestEmail({
+      asdEmail: asd.email,
+      asdName: asd.name,
+      contactName,
+      enrolleeType,
+      message,
+    });
+  } catch (err) {
+    console.error("Failed to send contact notification email", err);
+  }
 
   return {
     ok: true,
