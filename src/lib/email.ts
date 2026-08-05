@@ -27,7 +27,7 @@ export async function sendContactRequestEmail({
   const requestType = enrolleeType === "SELF" ? "Iscrizione personale" : "Iscrizione per il figlio/a";
 
   await resend.emails.send({
-    from: "SportMatch <onboarding@resend.dev>",
+    from: "SportMatch <noreply@sportmatch.it>",
     to: asdEmail,
     subject: `Nuova richiesta di contatto da ${contactName}`,
     html: `
