@@ -2,7 +2,7 @@
 
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
-import { sendContactRequestEmail } from "@/lib/email";
+import { sendContactRequestEmail, sendLockedContactEmail } from "@/lib/email";
 import { FREE_PLAN_CONTACT_LIMIT, countContactsThisMonth, hasUnlimitedContacts } from "@/lib/contact";
 
 export type ContactFormState = {
@@ -31,15 +31,9 @@ export async function submitContactRequest(
     return { ok: false, message: "Società non trovata." };
   }
 
-  if (!hasUnlimitedContacts(asd.subscriptionPlan)) {
-    const count = await countContactsThisMonth(asdId);
-    if (count >= FREE_PLAN_CONTACT_LIMIT) {
-      return {
-        ok: false,
-        message: "Questa società ha raggiunto il limite di contatti gratuiti per questo mese. Riprova il mese prossimo.",
-      };
-    }
-  }
+  const isLocked =
+    !hasUnlimitedContacts(asd.subscriptionPlan) &&
+    (await countContactsThisMonth(asdId)) >= FREE_PLAN_CONTACT_LIMIT;
 
   await prisma.contactRequest.create({
     data: {
@@ -54,13 +48,17 @@ export async function submitContactRequest(
   });
 
   try {
-    await sendContactRequestEmail({
-      asdEmail: asd.email,
-      asdName: asd.name,
-      contactName,
-      enrolleeType,
-      message,
-    });
+    if (isLocked) {
+      await sendLockedContactEmail({ asdEmail: asd.email, asdName: asd.name });
+    } else {
+      await sendContactRequestEmail({
+        asdEmail: asd.email,
+        asdName: asd.name,
+        contactName,
+        enrolleeType,
+        message,
+      });
+    }
   } catch (err) {
     console.error("Failed to send contact notification email", err);
   }

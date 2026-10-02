@@ -38,3 +38,24 @@ export async function sendContactRequestEmail({
     `,
   });
 }
+
+export async function sendLockedContactEmail({
+  asdEmail,
+  asdName,
+}: {
+  asdEmail: string;
+  asdName: string;
+}) {
+  await resend.emails.send({
+    from: "SportMatch <noreply@sportmatch.it>",
+    to: asdEmail,
+    subject: "Hai ricevuto una nuova richiesta di contatto (sospesa)",
+    html: `
+      <p>Ciao ${escapeHtml(asdName)},</p>
+      <p>Hai ricevuto una nuova richiesta di contatto tramite SportMatch, ma hai raggiunto il <strong>limite di 3 contatti gratuiti</strong> per questo mese.</p>
+      <p>I dati del genitore sono al sicuro nella tua dashboard, ma resteranno nascosti fino a quando non passi al piano <strong>Premium</strong>.</p>
+      <p><a href="https://sportmatch.it/dashboard">Vai alla dashboard</a> per sbloccare questa e le prossime richieste senza limiti.</p>
+      <p style="color:#888;font-size:12px;">Il limite si azzera il primo del mese successivo.</p>
+    `,
+  });
+}
