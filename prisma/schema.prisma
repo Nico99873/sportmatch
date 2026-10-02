@@ -107,5 +107,6 @@ model ContactRequest {
   enrolleeType EnrolleeType @default(CHILD)
   enrolleeAge  Int?
   message      String
+  viewedAt     DateTime?
   createdAt    DateTime     @default(now())
 }

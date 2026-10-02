@@ -2,6 +2,7 @@
 
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { FREE_PLAN_CONTACT_LIMIT, hasUnlimitedContacts, countViewsThisMonth } from "@/lib/contact";
 
 export type ReplyFormState = {
   ok: boolean;
@@ -37,4 +38,64 @@ export async function replyToReview(
   });
 
   return { ok: true, message: "Risposta pubblicata." };
+}
+
+export type OpenContactResult =
+  | { ok: true; contact: { id: string; contactName: string; contactEmail: string; contactPhone: string; enrolleeType: "SELF" | "CHILD"; enrolleeAge: number | null; message: string } }
+  | { ok: false; error: string };
+
+export async function openContactRequest(contactId: string): Promise<OpenContactResult> {
+  const session = await auth();
+  if (!session?.user?.id) return { ok: false, error: "Non autenticato." };
+
+  const contact = await prisma.contactRequest.findUnique({
+    where: { id: contactId },
+    include: { asd: { select: { id: true, subscriptionPlan: true } } },
+  });
+
+  if (!contact || contact.asd.id !== session.user.id) {
+    return { ok: false, error: "Richiesta non trovata." };
+  }
+
+  // Already opened
+  if (contact.viewedAt !== null) {
+    return {
+      ok: true,
+      contact: {
+        id: contact.id,
+        contactName: contact.contactName,
+        contactEmail: contact.contactEmail,
+        contactPhone: contact.contactPhone,
+        enrolleeType: contact.enrolleeType,
+        enrolleeAge: contact.enrolleeAge,
+        message: contact.message,
+      },
+    };
+  }
+
+  // Quota check for FREE plan
+  if (!hasUnlimitedContacts(contact.asd.subscriptionPlan)) {
+    const used = await countViewsThisMonth(contact.asd.id);
+    if (used >= FREE_PLAN_CONTACT_LIMIT) {
+      return { ok: false, error: "limite_raggiunto" };
+    }
+  }
+
+  const updated = await prisma.contactRequest.update({
+    where: { id: contactId },
+    data: { viewedAt: new Date() },
+  });
+
+  return {
+    ok: true,
+    contact: {
+      id: updated.id,
+      contactName: updated.contactName,
+      contactEmail: updated.contactEmail,
+      contactPhone: updated.contactPhone,
+      enrolleeType: updated.enrolleeType,
+      enrolleeAge: updated.enrolleeAge,
+      message: updated.message,
+    },
+  };
 }

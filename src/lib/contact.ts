@@ -8,47 +8,45 @@ export function hasUnlimitedContacts(plan: SubscriptionPlan) {
 }
 
 export async function countContactsThisMonth(asdId: string) {
-  const now = new Date();
-  const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-
+  const startOfMonth = new Date();
+  startOfMonth.setDate(1);
+  startOfMonth.setHours(0, 0, 0, 0);
   return prisma.contactRequest.count({
-    where: {
-      asdId,
-      createdAt: { gte: startOfMonth },
-    },
+    where: { asdId, createdAt: { gte: startOfMonth } },
   });
 }
 
+/** How many contacts this ASD has opened (viewedAt set) in the current calendar month. */
+export async function countViewsThisMonth(asdId: string) {
+  const startOfMonth = new Date();
+  startOfMonth.setDate(1);
+  startOfMonth.setHours(0, 0, 0, 0);
+  return prisma.contactRequest.count({
+    where: { asdId, viewedAt: { gte: startOfMonth } },
+  });
+}
+
+/** Remaining opens this month for a FREE-plan ASD. */
+export function remainingViews(viewsUsed: number) {
+  return Math.max(0, FREE_PLAN_CONTACT_LIMIT - viewsUsed);
+}
+
 /**
- * Marks which contacts are "locked" (content hidden until upgrade): on a FREE
- * plan, only the first `FREE_PLAN_CONTACT_LIMIT` contacts per calendar month
- * (oldest first) are visible — the rest are locked. Base/Premium never lock
- * anything. Computed live from the current plan, not persisted, so upgrading
- * retroactively unlocks every past contact.
+ * For FREE plan: a contact is "locked" (shows overlay) if it has never been
+ * opened (viewedAt == null) and the monthly view quota is exhausted.
+ * Non-FREE plans: nothing is ever locked.
  */
-export function markLockedContacts<T extends { id: string; createdAt: Date }>(
+export function markLockedContacts<T extends { id: string; viewedAt: Date | null }>(
   contacts: T[],
-  plan: SubscriptionPlan
+  plan: SubscriptionPlan,
+  viewsUsed: number
 ): (T & { locked: boolean })[] {
   if (plan !== "FREE") {
     return contacts.map((c) => ({ ...c, locked: false }));
   }
-
-  const byMonth = new Map<string, T[]>();
-  for (const c of contacts) {
-    const key = `${c.createdAt.getFullYear()}-${c.createdAt.getMonth()}`;
-    const group = byMonth.get(key);
-    if (group) group.push(c);
-    else byMonth.set(key, [c]);
-  }
-
-  const lockedIds = new Set<string>();
-  for (const group of byMonth.values()) {
-    const sorted = [...group].sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime());
-    for (const c of sorted.slice(FREE_PLAN_CONTACT_LIMIT)) {
-      lockedIds.add(c.id);
-    }
-  }
-
-  return contacts.map((c) => ({ ...c, locked: lockedIds.has(c.id) }));
+  const quotaExhausted = viewsUsed >= FREE_PLAN_CONTACT_LIMIT;
+  return contacts.map((c) => ({
+    ...c,
+    locked: c.viewedAt === null && quotaExhausted,
+  }));
 }
