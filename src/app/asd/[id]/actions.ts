@@ -31,6 +31,9 @@ export async function submitContactRequest(
     return { ok: false, message: "Società non trovata." };
   }
 
+  const session = await auth();
+  const userId = session?.user?.role === "PARENT" ? session.user.id : null;
+
   const isLocked =
     !hasUnlimitedContacts(asd.subscriptionPlan) &&
     (await countContactsThisMonth(asdId)) >= FREE_PLAN_CONTACT_LIMIT;
@@ -38,6 +41,7 @@ export async function submitContactRequest(
   await prisma.contactRequest.create({
     data: {
       asdId,
+      userId,
       contactName,
       contactEmail,
       contactPhone,

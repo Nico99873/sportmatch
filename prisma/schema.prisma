@@ -29,7 +29,8 @@ model User {
   email    String @unique
   password String
 
-  reviews Review[]
+  reviews         Review[]
+  contactRequests ContactRequest[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -101,6 +102,8 @@ model ContactRequest {
   id           String       @id @default(cuid())
   asd          Asd          @relation(fields: [asdId], references: [id], onDelete: Cascade)
   asdId        String
+  user         User?        @relation(fields: [userId], references: [id], onDelete: SetNull)
+  userId       String?
   contactName  String
   contactEmail String
   contactPhone String

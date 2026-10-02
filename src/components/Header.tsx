@@ -22,9 +22,12 @@ export default async function Header() {
               La mia dashboard
             </Link>
           ) : session?.user ? (
-            <span className="rounded-full bg-white/10 px-3 py-1.5 font-medium">
-              Ciao, {session.user.name}
-            </span>
+            <Link
+              href="/area-personale"
+              className="rounded-full bg-sm-orange px-3 py-1.5 font-medium text-white transition hover:brightness-95"
+            >
+              La mia area
+            </Link>
           ) : (
             <>
               <Link
