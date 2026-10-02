@@ -113,38 +113,50 @@ export async function registerAsd(
     return { ok: false, message: "La foto non può superare 5 MB." };
   }
 
-  const existing = await prisma.asd.findUnique({ where: { email } });
-  if (existing) {
-    return { ok: false, message: "Esiste già una società registrata con questa email." };
-  }
+  try {
+    const existing = await prisma.asd.findUnique({ where: { email } });
+    if (existing) {
+      return { ok: false, message: "Esiste già una società registrata con questa email." };
+    }
 
-  const hashed = await bcrypt.hash(password, 10);
+    const hashed = await bcrypt.hash(password, 10);
 
-  let photoUrl: string | null = null;
-  if (photo && photo.size > 0) {
-    const safeName = photo.name.replace(/[^a-zA-Z0-9._-]/g, "_");
-    const blob = await put(`asd-photos/${Date.now()}-${safeName}`, photo, { access: "public" });
-    photoUrl = blob.url;
-  }
+    let photoUrl: string | null = null;
+    if (photo && photo.size > 0) {
+      try {
+        const safeName = photo.name.replace(/[^a-zA-Z0-9._-]/g, "_");
+        const blob = await put(`asd-photos/${Date.now()}-${safeName}`, photo, { access: "public" });
+        photoUrl = blob.url;
+      } catch (uploadErr) {
+        console.error("Photo upload failed, continuing without photo:", uploadErr);
+      }
+    }
 
-  await prisma.asd.create({
-    data: {
-      name,
-      email,
-      password: hashed,
-      sport,
-      sportCustomLabel: sport === "ALTRO" ? sportCustomLabel : null,
-      address,
-      lat,
-      lon,
-      description,
-      photoUrl,
-      claimed: true,
-      categories: {
-        create: categories,
+    await prisma.asd.create({
+      data: {
+        name,
+        email,
+        password: hashed,
+        sport,
+        sportCustomLabel: sport === "ALTRO" ? sportCustomLabel : null,
+        address,
+        lat,
+        lon,
+        description,
+        photoUrl,
+        claimed: true,
+        categories: {
+          create: categories,
+        },
       },
-    },
-  });
+    });
+  } catch (err) {
+    console.error("registerAsd error:", err);
+    return {
+      ok: false,
+      message: `Errore durante la registrazione: ${err instanceof Error ? err.message : "riprova tra qualche secondo"}.`,
+    };
+  }
 
   redirect("/login?registered=1");
 }
