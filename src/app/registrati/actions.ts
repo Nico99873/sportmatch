@@ -122,6 +122,7 @@ export async function registerAsd(
       lon,
       description,
       photoUrl: photoUrl || null,
+      claimed: true,
       categories: {
         create: categories,
       },

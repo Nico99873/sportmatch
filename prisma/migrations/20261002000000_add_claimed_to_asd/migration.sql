@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "Asd" ADD COLUMN "claimed" BOOLEAN NOT NULL DEFAULT false;

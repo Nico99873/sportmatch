@@ -50,6 +50,7 @@ model Asd {
   subscriptionPlan  SubscriptionPlan @default(FREE)
   subscriptionSince DateTime?
   profileViewCount  Int              @default(0)
+  claimed           Boolean          @default(false)
 
   categories      AsdCategory[]
   reviews         Review[]

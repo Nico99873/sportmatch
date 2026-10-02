@@ -184,6 +184,15 @@ export default async function AsdProfilePage({ params }: { params: Promise<{ id:
             </div>
           </div>
         </div>
+
+        {!asd.claimed && (
+          <p className="mt-6 text-center text-xs text-zinc-400">
+            Profilo creato da SportMatch con dati pubblici disponibili online. Sei il responsabile di questa società?{" "}
+            <a href="mailto:info@sportmatch.it" className="underline hover:text-zinc-600">
+              Reclama il profilo gratuitamente o richiedi la rimozione scrivendo a info@sportmatch.it
+            </a>
+          </p>
+        )}
       </div>
     </div>
   );
