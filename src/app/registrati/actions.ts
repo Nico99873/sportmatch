@@ -123,13 +123,9 @@ export async function registerAsd(
 
     let photoUrl: string | null = null;
     if (photo && photo.size > 0) {
-      try {
-        const safeName = photo.name.replace(/[^a-zA-Z0-9._-]/g, "_");
-        const blob = await put(`asd-photos/${Date.now()}-${safeName}`, photo, { access: "public" });
-        photoUrl = blob.url;
-      } catch (uploadErr) {
-        console.error("Photo upload failed, continuing without photo:", uploadErr);
-      }
+      const safeName = photo.name.replace(/[^a-zA-Z0-9._-]/g, "_");
+      const blob = await put(`asd-photos/${Date.now()}-${safeName}`, photo, { access: "private" });
+      photoUrl = blob.url;
     }
 
     await prisma.asd.create({

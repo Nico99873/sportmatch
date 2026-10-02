@@ -28,6 +28,7 @@ export default async function AsdProfilePage({ params }: { params: Promise<{ id:
 
   if (!asd) notFound();
 
+
   await prisma.asd.update({ where: { id }, data: { profileViewCount: { increment: 1 } } });
 
   const info = SPORT_INFO[asd.sport];
@@ -63,7 +64,15 @@ export default async function AsdProfilePage({ params }: { params: Promise<{ id:
           <Link href="/" className="text-sm font-medium text-white/90 hover:text-white">
             ← Torna alla mappa
           </Link>
-          <span className="text-6xl drop-shadow-sm sm:text-7xl">{info.emoji}</span>
+          {asd.photoUrl ? (
+            <img
+              src={`/api/asd/${asd.id}/photo`}
+              alt={`Foto di ${asd.name}`}
+              className="h-20 w-20 rounded-2xl object-cover shadow-lg ring-2 ring-white/40 sm:h-24 sm:w-24"
+            />
+          ) : (
+            <span className="text-6xl drop-shadow-sm sm:text-7xl">{info.emoji}</span>
+          )}
         </div>
       </div>
 
