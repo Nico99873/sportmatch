@@ -30,23 +30,3 @@ export async function countViewsThisMonth(asdId: string) {
 export function remainingViews(viewsUsed: number) {
   return Math.max(0, FREE_PLAN_CONTACT_LIMIT - viewsUsed);
 }
-
-/**
- * For FREE plan: a contact is "locked" (shows overlay) if it has never been
- * opened (viewedAt == null) and the monthly view quota is exhausted.
- * Non-FREE plans: nothing is ever locked.
- */
-export function markLockedContacts<T extends { id: string; viewedAt: Date | null }>(
-  contacts: T[],
-  plan: SubscriptionPlan,
-  viewsUsed: number
-): (T & { locked: boolean })[] {
-  if (plan !== "FREE") {
-    return contacts.map((c) => ({ ...c, locked: false }));
-  }
-  const quotaExhausted = viewsUsed >= FREE_PLAN_CONTACT_LIMIT;
-  return contacts.map((c) => ({
-    ...c,
-    locked: c.viewedAt === null && quotaExhausted,
-  }));
-}

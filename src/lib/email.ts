@@ -60,6 +60,29 @@ export async function sendUpgradeRequestEmail({
   });
 }
 
+export async function sendMonthlyPendingContactsEmail({
+  asdEmail,
+  asdName,
+  pendingCount,
+}: {
+  asdEmail: string;
+  asdName: string;
+  pendingCount: number;
+}) {
+  await resend.emails.send({
+    from: "SportMatch <noreply@sportmatch.it>",
+    to: asdEmail,
+    subject: `${pendingCount} ${pendingCount === 1 ? "richiesta in attesa" : "richieste in attesa"} — ora disponibili`,
+    html: `
+      <p>Ciao ${escapeHtml(asdName)},</p>
+      <p>È iniziato un nuovo mese e il tuo limite di letture si è azzerato.</p>
+      <p>Hai <strong>${pendingCount} ${pendingCount === 1 ? "richiesta di contatto" : "richieste di contatto"} in attesa</strong> che ${pendingCount === 1 ? "puoi ora leggere" : "puoi ora leggere"} dalla tua dashboard.</p>
+      <p>Ricorda che i genitori contattano più società in parallelo: rispondi subito per non perdere l'iscrizione.</p>
+      <p><a href="https://sportmatch.it/dashboard">Vai alla dashboard →</a></p>
+    `,
+  });
+}
+
 export async function sendLockedContactEmail({
   asdEmail,
   asdName,
