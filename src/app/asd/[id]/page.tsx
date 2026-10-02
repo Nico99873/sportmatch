@@ -8,6 +8,7 @@ import Header from "@/components/Header";
 import StarRating from "@/components/StarRating";
 import ContactForm from "@/components/ContactForm";
 import ReviewForm from "@/components/ReviewForm";
+import PhotoLightbox from "@/components/PhotoLightbox";
 
 export const dynamic = "force-dynamic";
 
@@ -65,10 +66,9 @@ export default async function AsdProfilePage({ params }: { params: Promise<{ id:
             ← Torna alla mappa
           </Link>
           {asd.photoUrl ? (
-            <img
+            <PhotoLightbox
               src={`/api/asd/${asd.id}/photo`}
               alt={`Foto di ${asd.name}`}
-              className="h-20 w-20 rounded-2xl object-cover shadow-lg ring-2 ring-white/40 sm:h-24 sm:w-24"
             />
           ) : (
             <span className="text-6xl drop-shadow-sm sm:text-7xl">{info.emoji}</span>
