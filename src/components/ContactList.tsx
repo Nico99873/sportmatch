@@ -5,12 +5,12 @@ import { openContactRequest } from "@/app/dashboard/actions";
 
 type Contact = {
   id: string;
-  contactName: string;
-  contactEmail: string;
-  contactPhone: string;
+  contactName: string | null;
+  contactEmail: string | null;
+  contactPhone: string | null;
   enrolleeType: "SELF" | "CHILD";
   enrolleeAge: number | null;
-  message: string;
+  message: string | null;
   viewedAt: Date | null;
   createdAt: Date;
 };
@@ -24,10 +24,15 @@ type Props = {
 
 export default function ContactList({ contacts, initialViewsUsed, unlimited, limit }: Props) {
   const [viewsUsed, setViewsUsed] = useState(initialViewsUsed);
-  const [opened, setOpened] = useState<Map<string, Contact>>(() => {
-    const m = new Map<string, Contact>();
+  type OpenedContact = {
+    id: string; contactName: string; contactEmail: string; contactPhone: string;
+    enrolleeType: "SELF" | "CHILD"; enrolleeAge: number | null; message: string; viewedAt: Date;
+  };
+  const [opened, setOpened] = useState<Map<string, OpenedContact>>(() => {
+    const m = new Map<string, OpenedContact>();
     for (const c of contacts) {
-      if (c.viewedAt !== null) m.set(c.id, c);
+      if (c.viewedAt !== null && c.contactName !== null)
+        m.set(c.id, c as OpenedContact);
     }
     return m;
   });
@@ -42,7 +47,7 @@ export default function ContactList({ contacts, initialViewsUsed, unlimited, lim
     startTransition(async () => {
       const result = await openContactRequest(contactId);
       if (result.ok) {
-        setOpened((prev) => new Map(prev).set(contactId, result.contact as Contact));
+        setOpened((prev) => new Map(prev).set(contactId, result.contact as OpenedContact));
         const wasNew = contacts.find((c) => c.id === contactId)?.viewedAt === null;
         if (wasNew) setViewsUsed((v) => v + 1);
       }

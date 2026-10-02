@@ -29,6 +29,13 @@ export default async function DashboardPage() {
 
   const viewsUsed = await countViewsThisMonth(asd.id);
   const unlimited = hasUnlimitedContacts(asd.subscriptionPlan);
+
+  // Strip sensitive fields from contacts not yet opened — prevents data leak via client serialization
+  const safeContacts = asd.contactRequests.map((c) =>
+    c.viewedAt !== null
+      ? c
+      : { id: c.id, createdAt: c.createdAt, viewedAt: null, contactName: null, contactEmail: null, contactPhone: null, enrolleeType: c.enrolleeType, enrolleeAge: null, message: null }
+  );
   const info = SPORT_INFO[asd.sport];
   const plan = PLAN_INFO[asd.subscriptionPlan];
 
@@ -84,7 +91,7 @@ export default async function DashboardPage() {
         <div className="mb-6 rounded-2xl border bg-white p-5 shadow-sm">
           <h2 className="mb-4 text-lg font-semibold text-sm-navy">Richieste di contatto</h2>
           <ContactList
-            contacts={asd.contactRequests}
+            contacts={safeContacts}
             initialViewsUsed={viewsUsed}
             unlimited={unlimited}
             limit={FREE_PLAN_CONTACT_LIMIT}
