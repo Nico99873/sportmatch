@@ -2,6 +2,7 @@
 
 import bcrypt from "bcryptjs";
 import { redirect } from "next/navigation";
+import { put } from "@vercel/blob";
 import { prisma } from "@/lib/prisma";
 import { SPORTS } from "@/lib/sports";
 import type { Sport } from "@prisma/client";
@@ -83,7 +84,7 @@ export async function registerAsd(
   const lat = Number(formData.get("lat"));
   const lon = Number(formData.get("lon"));
   const description = String(formData.get("description") ?? "").trim();
-  const photoUrl = String(formData.get("photoUrl") ?? "").trim();
+  const photo = formData.get("photo") as File | null;
   const categoriesJson = String(formData.get("categoriesJson") ?? "");
 
   if (!name || !email || !password || !address || !description) {
@@ -104,12 +105,23 @@ export async function registerAsd(
     return { ok: false, message: categories.error };
   }
 
+  if (photo && photo.size > 5 * 1024 * 1024) {
+    return { ok: false, message: "La foto non può superare 5 MB." };
+  }
+
   const existing = await prisma.asd.findUnique({ where: { email } });
   if (existing) {
     return { ok: false, message: "Esiste già una società registrata con questa email." };
   }
 
   const hashed = await bcrypt.hash(password, 10);
+
+  let photoUrl: string | null = null;
+  if (photo && photo.size > 0) {
+    const safeName = photo.name.replace(/[^a-zA-Z0-9._-]/g, "_");
+    const blob = await put(`asd-photos/${Date.now()}-${safeName}`, photo, { access: "public" });
+    photoUrl = blob.url;
+  }
 
   await prisma.asd.create({
     data: {
@@ -121,7 +133,7 @@ export async function registerAsd(
       lat,
       lon,
       description,
-      photoUrl: photoUrl || null,
+      photoUrl,
       claimed: true,
       categories: {
         create: categories,

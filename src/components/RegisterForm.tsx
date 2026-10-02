@@ -22,6 +22,12 @@ function emptyCategory(): CategoryDraft {
 export default function RegisterForm() {
   const [state, formAction, isPending] = useActionState(registerAsd, initialState);
   const [categories, setCategories] = useState<CategoryDraft[]>([emptyCategory()]);
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+
+  function handlePhotoChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    setPhotoPreview(file ? URL.createObjectURL(file) : null);
+  }
 
   function updateCategory(index: number, field: keyof CategoryDraft, value: string) {
     setCategories((prev) => prev.map((c, i) => (i === index ? { ...c, [field]: value } : c)));
@@ -189,8 +195,17 @@ export default function RegisterForm() {
         <textarea name="description" required rows={4} placeholder="Racconta la tua società..." className="input" />
       </Field>
 
-      <Field label="URL foto (opzionale)" hint="Il caricamento file arriverà in una prossima versione">
-        <input name="photoUrl" placeholder="https://..." className="input" />
+      <Field label="Foto (opzionale)">
+        <input
+          type="file"
+          name="photo"
+          accept="image/*"
+          onChange={handlePhotoChange}
+          className="input"
+        />
+        {photoPreview && (
+          <img src={photoPreview} alt="Anteprima foto" className="mt-2 h-24 w-24 rounded-lg object-cover" />
+        )}
       </Field>
 
       <button
