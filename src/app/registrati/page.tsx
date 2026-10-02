@@ -8,8 +8,8 @@ export default function RegistratiPage() {
       <div className="mx-auto w-full max-w-2xl flex-1 px-4 py-8">
         <h1 className="mb-1 text-2xl font-bold text-sm-navy">Registra la tua ASD su SportMatch</h1>
         <p className="mb-6 text-sm text-zinc-600">
-          Profilo base gratuito. I primi 3 contatti al mese sono gratis, dal 4° in poi 2€ a contatto.
-          Visibilità extra e analytics con l&apos;abbonamento Premium.
+          Profilo base gratuito. Ricevi fino a 3 richieste di contatto al mese — dal 4° in poi vengono messe in coda per il mese successivo.
+          Visibilità extra e contatti illimitati con l&apos;abbonamento Premium.
         </p>
         <div className="rounded-2xl border bg-white p-6 shadow-sm">
           <RegisterForm />
