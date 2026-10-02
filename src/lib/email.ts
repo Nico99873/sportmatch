@@ -39,6 +39,27 @@ export async function sendContactRequestEmail({
   });
 }
 
+export async function sendUpgradeRequestEmail({
+  asdEmail,
+  asdName,
+  requestedPlan,
+}: {
+  asdEmail: string;
+  asdName: string;
+  requestedPlan: string;
+}) {
+  await resend.emails.send({
+    from: "SportMatch <noreply@sportmatch.it>",
+    to: "nicolo@frighettomobili.it",
+    subject: `Richiesta upgrade piano — ${asdName}`,
+    html: `
+      <p><strong>${escapeHtml(asdName)}</strong> ha richiesto l'upgrade al piano <strong>${escapeHtml(requestedPlan)}</strong>.</p>
+      <p><strong>Email ASD:</strong> ${escapeHtml(asdEmail)}</p>
+      <p>Contattala per procedere con il pagamento e aggiorna il piano nella dashboard di amministrazione.</p>
+    `,
+  });
+}
+
 export async function sendLockedContactEmail({
   asdEmail,
   asdName,

@@ -3,6 +3,8 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { FREE_PLAN_CONTACT_LIMIT, hasUnlimitedContacts, countViewsThisMonth } from "@/lib/contact";
+import { sendUpgradeRequestEmail } from "@/lib/email";
+import { PLAN_INFO } from "@/lib/plans";
 
 export type ReplyFormState = {
   ok: boolean;
@@ -38,6 +40,28 @@ export async function replyToReview(
   });
 
   return { ok: true, message: "Risposta pubblicata." };
+}
+
+export async function requestPlanUpgrade(planKey: string): Promise<{ ok: boolean; message: string }> {
+  const session = await auth();
+  if (!session?.user?.id) return { ok: false, message: "Non autenticato." };
+
+  const asd = await prisma.asd.findUnique({ where: { id: session.user.id } });
+  if (!asd) return { ok: false, message: "ASD non trovata." };
+
+  const planInfo = PLAN_INFO[planKey as keyof typeof PLAN_INFO];
+  if (!planInfo) return { ok: false, message: "Piano non valido." };
+
+  try {
+    await sendUpgradeRequestEmail({
+      asdEmail: asd.email,
+      asdName: asd.name,
+      requestedPlan: planInfo.label,
+    });
+    return { ok: true, message: `Richiesta inviata! Ti contatteremo a ${asd.email} entro 24 ore.` };
+  } catch {
+    return { ok: false, message: "Errore nell'invio della richiesta. Riprova più tardi." };
+  }
 }
 
 export type OpenContactResult =

@@ -9,6 +9,7 @@ import SignOutButton from "@/components/SignOutButton";
 import ReplyForm from "@/components/ReplyForm";
 import StarRating from "@/components/StarRating";
 import ContactList from "@/components/ContactList";
+import UpgradeButton from "@/components/UpgradeButton";
 
 export const dynamic = "force-dynamic";
 
@@ -158,13 +159,7 @@ export default async function DashboardPage() {
                     ))}
                   </ul>
                   {isUpgrade && (
-                    <button
-                      disabled
-                      title="Pagamenti non ancora disponibili in questo prototipo"
-                      className="cursor-not-allowed rounded-lg bg-sm-orange px-3 py-2 text-xs font-semibold text-white opacity-60"
-                    >
-                      Passa a {info.label} (placeholder pagamento)
-                    </button>
+                    <UpgradeButton planKey={planKey} planLabel={info.label} />
                   )}
                 </div>
               );
