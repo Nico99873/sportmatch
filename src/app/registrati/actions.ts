@@ -84,6 +84,7 @@ export async function registerAsd(
   const lat = Number(formData.get("lat"));
   const lon = Number(formData.get("lon"));
   const description = String(formData.get("description") ?? "").trim();
+  const sportCustomLabel = String(formData.get("sportCustomLabel") ?? "").trim();
   const photo = formData.get("photo") as File | null;
   const categoriesJson = String(formData.get("categoriesJson") ?? "");
 
@@ -93,11 +94,14 @@ export async function registerAsd(
   if (!SPORTS.includes(sport)) {
     return { ok: false, message: "Seleziona uno sport valido." };
   }
+  if (sport === "ALTRO" && !sportCustomLabel) {
+    return { ok: false, message: "Specifica il nome dello sport." };
+  }
   if (password.length < 8) {
     return { ok: false, message: "La password deve avere almeno 8 caratteri." };
   }
-  if (Number.isNaN(lat) || Number.isNaN(lon)) {
-    return { ok: false, message: "Coordinate non valide." };
+  if (Number.isNaN(lat) || Number.isNaN(lon) || !lat || !lon) {
+    return { ok: false, message: "Indirizzo non riconosciuto — aspetta che appaia '📍 Posizione trovata' prima di inviare." };
   }
 
   const categories = parseCategories(categoriesJson);
@@ -129,6 +133,7 @@ export async function registerAsd(
       email,
       password: hashed,
       sport,
+      sportCustomLabel: sport === "ALTRO" ? sportCustomLabel : null,
       address,
       lat,
       lon,

@@ -14,6 +14,7 @@ enum Sport {
   TENNIS
   ARTI_MARZIALI
   ATLETICA
+  ALTRO
 }
 
 enum SubscriptionPlan {
@@ -47,6 +48,7 @@ model Asd {
   photoUrl    String?
   rating      Float    @default(0)
 
+  sportCustomLabel  String?
   subscriptionPlan  SubscriptionPlan @default(FREE)
   subscriptionSince DateTime?
   profileViewCount  Int              @default(0)

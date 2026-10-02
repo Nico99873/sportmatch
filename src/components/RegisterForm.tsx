@@ -1,9 +1,9 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useActionState, useState, useRef } from "react";
 import { registerAsd, type RegisterFormState } from "@/app/registrati/actions";
 import { SPORTS, SPORT_INFO } from "@/lib/sports";
-import { BASSANO_CENTER } from "@/lib/geo";
+import { geocodePlace } from "@/lib/geocode";
 
 const initialState: RegisterFormState = { ok: false, message: "" };
 
@@ -23,10 +23,28 @@ export default function RegisterForm() {
   const [state, formAction, isPending] = useActionState(registerAsd, initialState);
   const [categories, setCategories] = useState<CategoryDraft[]>([emptyCategory()]);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+  const [selectedSport, setSelectedSport] = useState("");
+  const [lat, setLat] = useState<number | null>(null);
+  const [lon, setLon] = useState<number | null>(null);
+  const [geocodeStatus, setGeocodeStatus] = useState<"idle" | "loading" | "ok" | "error">("idle");
 
   function handlePhotoChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     setPhotoPreview(file ? URL.createObjectURL(file) : null);
+  }
+
+  async function handleAddressBlur(e: React.FocusEvent<HTMLInputElement>) {
+    const address = e.target.value.trim();
+    if (address.length < 5) return;
+    setGeocodeStatus("loading");
+    try {
+      const result = await geocodePlace(address);
+      setLat(result.lat);
+      setLon(result.lon);
+      setGeocodeStatus("ok");
+    } catch {
+      setGeocodeStatus("error");
+    }
   }
 
   function updateCategory(index: number, field: keyof CategoryDraft, value: string) {
@@ -61,10 +79,14 @@ export default function RegisterForm() {
       </div>
 
       <Field label="Sport *">
-        <select name="sport" required defaultValue="" className="input">
-          <option value="" disabled>
-            Seleziona uno sport
-          </option>
+        <select
+          name="sport"
+          required
+          defaultValue=""
+          className="input"
+          onChange={(e) => setSelectedSport(e.target.value)}
+        >
+          <option value="" disabled>Seleziona uno sport</option>
           {SPORTS.map((s) => (
             <option key={s} value={s}>
               {SPORT_INFO[s].emoji} {SPORT_INFO[s].label}
@@ -73,32 +95,35 @@ export default function RegisterForm() {
         </select>
       </Field>
 
-      <Field label="Indirizzo *">
-        <input name="address" required placeholder="Via, città, provincia" className="input" />
-      </Field>
+      {selectedSport === "ALTRO" && (
+        <Field label="Specifica lo sport *">
+          <input name="sportCustomLabel" required placeholder="Es. Ginnastica ritmica, Rugby..." className="input" />
+        </Field>
+      )}
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <Field label="Latitudine *" hint="Posizione sulla mappa, regolabile">
+      <div>
+        <Field label="Indirizzo *">
           <input
-            type="number"
-            step="0.0001"
-            name="lat"
+            name="address"
             required
-            defaultValue={BASSANO_CENTER.lat}
+            placeholder="Via, città, provincia"
             className="input"
+            onBlur={handleAddressBlur}
           />
         </Field>
-        <Field label="Longitudine *">
-          <input
-            type="number"
-            step="0.0001"
-            name="lon"
-            required
-            defaultValue={BASSANO_CENTER.lon}
-            className="input"
-          />
-        </Field>
+        {geocodeStatus === "loading" && (
+          <p className="mt-1 text-xs text-zinc-400">📍 Ricerca posizione...</p>
+        )}
+        {geocodeStatus === "ok" && (
+          <p className="mt-1 text-xs text-green-600">📍 Posizione trovata</p>
+        )}
+        {geocodeStatus === "error" && (
+          <p className="mt-1 text-xs text-red-500">Indirizzo non trovato — prova con una formulazione più semplice (es. "Via Roma 1, Milano")</p>
+        )}
       </div>
+
+      <input type="hidden" name="lat" value={lat ?? ""} />
+      <input type="hidden" name="lon" value={lon ?? ""} />
 
       <div>
         <span className="mb-1 block text-xs font-medium text-zinc-600">Categorie *</span>

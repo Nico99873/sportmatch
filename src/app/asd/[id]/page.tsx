@@ -24,6 +24,8 @@ export default async function AsdProfilePage({ params }: { params: Promise<{ id:
     },
   });
 
+  const sportLabel = asd?.sport === "ALTRO" && asd.sportCustomLabel ? asd.sportCustomLabel : null;
+
   if (!asd) notFound();
 
   await prisma.asd.update({ where: { id }, data: { profileViewCount: { increment: 1 } } });
@@ -75,7 +77,7 @@ export default async function AsdProfilePage({ params }: { params: Promise<{ id:
                   className="rounded-full px-2.5 py-1 text-xs font-semibold text-white"
                   style={{ backgroundColor: info.color }}
                 >
-                  {info.emoji} {info.label}
+                  {info.emoji} {sportLabel ?? info.label}
                 </span>
                 {asd.subscriptionPlan === "PREMIUM" && (
                   <span className="rounded-full bg-sm-blue/10 px-2.5 py-1 text-xs font-semibold text-sm-blue">

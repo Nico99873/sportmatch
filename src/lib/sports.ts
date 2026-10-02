@@ -8,6 +8,7 @@ export const SPORTS: Sport[] = [
   "TENNIS",
   "ARTI_MARZIALI",
   "ATLETICA",
+  "ALTRO",
 ];
 
 export const SPORT_INFO: Record<Sport, { label: string; emoji: string; color: string }> = {
@@ -18,4 +19,5 @@ export const SPORT_INFO: Record<Sport, { label: string; emoji: string; color: st
   TENNIS: { label: "Tennis", emoji: "🎾", color: "#65A30D" },
   ARTI_MARZIALI: { label: "Arti marziali", emoji: "🥋", color: "#DC2626" },
   ATLETICA: { label: "Atletica", emoji: "🏃", color: "#2563EB" },
+  ALTRO: { label: "Altro", emoji: "🏅", color: "#6B7280" },
 };
