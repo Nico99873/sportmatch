@@ -34,7 +34,7 @@ export async function sendContactRequestEmail({
       <p><strong>${escapeHtml(contactName)}</strong> ha inviato una richiesta di contatto a ${escapeHtml(asdName)} tramite SportMatch.</p>
       <p><strong>Tipo di richiesta:</strong> ${requestType}</p>
       <p><strong>Messaggio:</strong><br>${escapeHtml(message).replace(/\n/g, "<br>")}</p>
-      <p><a href="https://sportmatch-black.vercel.app/dashboard">Vai alla tua dashboard</a> per rispondere.</p>
+      <p><a href="https://sportmatch.it/dashboard">Vai alla tua dashboard</a> per rispondere.</p>
     `,
   });
 }
