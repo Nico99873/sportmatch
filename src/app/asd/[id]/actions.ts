@@ -49,7 +49,10 @@ export async function submitContactRequest(
 
   try {
     if (isLocked) {
-      await sendLockedContactEmail({ asdEmail: asd.email, asdName: asd.name });
+      const now = new Date();
+      const nextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+      const nextMonthLabel = nextMonth.toLocaleString("it-IT", { month: "long" });
+      await sendLockedContactEmail({ asdEmail: asd.email, asdName: asd.name, nextMonthLabel });
     } else {
       await sendContactRequestEmail({
         asdEmail: asd.email,

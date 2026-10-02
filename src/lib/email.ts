@@ -42,20 +42,24 @@ export async function sendContactRequestEmail({
 export async function sendLockedContactEmail({
   asdEmail,
   asdName,
+  nextMonthLabel,
 }: {
   asdEmail: string;
   asdName: string;
+  nextMonthLabel: string;
 }) {
   await resend.emails.send({
     from: "SportMatch <noreply@sportmatch.it>",
     to: asdEmail,
-    subject: "Hai ricevuto una nuova richiesta di contatto (sospesa)",
+    subject: "Nuova richiesta in attesa — visibile il mese prossimo",
     html: `
       <p>Ciao ${escapeHtml(asdName)},</p>
-      <p>Hai ricevuto una nuova richiesta di contatto tramite SportMatch, ma hai raggiunto il <strong>limite di 3 contatti gratuiti</strong> per questo mese.</p>
-      <p>I dati del genitore sono al sicuro nella tua dashboard, ma resteranno nascosti fino a quando non passi al piano <strong>Premium</strong>.</p>
-      <p><a href="https://sportmatch.it/dashboard">Vai alla dashboard</a> per sbloccare questa e le prossime richieste senza limiti.</p>
-      <p style="color:#888;font-size:12px;">Il limite si azzera il primo del mese successivo.</p>
+      <p>Hai ricevuto una nuova richiesta di contatto tramite SportMatch, ma hai già raggiunto il <strong>limite di 3 contatti gratuiti</strong> per questo mese.</p>
+      <p>La richiesta è salvata e ti arriverà automaticamente <strong>il 1° ${escapeHtml(nextMonthLabel)}</strong>, insieme alle altre in attesa (fino a 3 in totale).</p>
+      <p><strong>Tieni presente che</strong> i genitori di solito contattano più società in parallelo. Se aspetti il mese prossimo, rischi che si affidino a un'altra ASD nel frattempo.</p>
+      <p>Se vuoi rispondere subito, passa al piano <strong>Premium</strong> per sbloccare questa richiesta e ricevere contatti illimitati senza aspettare.</p>
+      <p><a href="https://sportmatch.it/dashboard">Vai alla dashboard →</a></p>
+      <p style="color:#888;font-size:12px;">Il limite gratuito si azzera il primo di ogni mese.</p>
     `,
   });
 }
