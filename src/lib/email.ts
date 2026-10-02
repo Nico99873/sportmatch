@@ -50,7 +50,7 @@ export async function sendUpgradeRequestEmail({
 }) {
   await resend.emails.send({
     from: "SportMatch <noreply@sportmatch.it>",
-    to: "nicolo@frighettomobili.it",
+    to: process.env.ADMIN_EMAIL ?? "nicolofrighetto@gmail.com",
     subject: `Richiesta upgrade piano — ${asdName}`,
     html: `
       <p><strong>${escapeHtml(asdName)}</strong> ha richiesto l'upgrade al piano <strong>${escapeHtml(requestedPlan)}</strong>.</p>
